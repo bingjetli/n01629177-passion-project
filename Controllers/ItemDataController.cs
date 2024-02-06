@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.EnterpriseServices;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,6 +29,26 @@ namespace n01629177_passion_project.Controllers {
       }
 
       return Ok(item);
+    }
+
+    // GET : api/ItemData?search={SEARCH_STRING}
+    public IHttpActionResult GetItems([FromUri] string search) {
+
+      //Trim the search string and normalize the search string to a lowercase value.
+      string search_string = search == null ? "" : search.Trim().ToLower();
+
+
+      //Try to search for the entire search string first.
+      IEnumerable<Item> initial_search_results = db.Items
+        .Where(i => (
+          i.ItemName.Contains(search_string) ||
+          i.ItemBrand.Contains(search_string) ||
+          i.ItemVariant.Contains(search_string)
+        ));
+
+
+      //Return HTTP 200 and the search results.
+      return Ok(initial_search_results);
     }
 
     // PUT: api/ItemData/5

@@ -1,6 +1,6 @@
 # Changelog
 
-06-02-2024-09:41 :
+0948-20240206 :
  - Added changelog and Readme.md
  - Implemented ItemController
  - Implemented /Search?query= route for ItemController.

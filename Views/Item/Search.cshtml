@@ -1,0 +1,51 @@
+﻿@model IEnumerable<n01629177_passion_project.Models.Item>
+
+@{
+  ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+
+<p>
+  @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+  <tr>
+    <th>
+      @Html.DisplayNameFor(model => model.ItemBrand)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.ItemName)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.ItemVariant)
+    </th>
+    <th>
+      @Html.DisplayNameFor(model => model.ItemWeightGrams)
+    </th>
+    <th></th>
+  </tr>
+
+  @foreach (var item in Model) {
+    <tr>
+      <td>
+        @Html.DisplayFor(modelItem => item.ItemBrand)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.ItemName)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.ItemVariant)
+      </td>
+      <td>
+        @Html.DisplayFor(modelItem => item.ItemWeightGrams)
+      </td>
+      <td>
+        @Html.ActionLink("Edit", "Edit", new { id = item.ItemId }) |
+        @Html.ActionLink("Details", "Details", new { id = item.ItemId }) |
+        @Html.ActionLink("Delete", "Delete", new { id = item.ItemId })
+      </td>
+    </tr>
+  }
+
+</table>
