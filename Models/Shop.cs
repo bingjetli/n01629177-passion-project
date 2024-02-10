@@ -30,7 +30,12 @@ namespace n01629177_passion_project.Models {
 
 
     //A shop can have many BasePriceRecords; but a BasePriceRecord can only be associated with 1 Shop.
-    public virtual ICollection<BasePriceRecord> PriceRecords { get; set; }
+    //public virtual ICollection<BasePriceRecord> PriceRecords { get; set; }
+
+
+    //A Shop can have many Prices associated with it but a Price can only be
+    //associated with 1 Shop.
+    public virtual ICollection<Price> Prices { get; set; }
 
 
 

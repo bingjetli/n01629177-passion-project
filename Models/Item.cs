@@ -22,7 +22,11 @@ namespace n01629177_passion_project.Models {
     public string ItemVariant { get; set; }
 
     //An item can have many price records; but a price record can only correspond to 1 item.
-    public virtual ICollection<BasePriceRecord> ItemPriceRecords { get; set; }
+    //public virtual ICollection<BasePriceRecord> ItemPriceRecords { get; set; }
+
+
+    //An Item can be associated with many Prices, but a Price can only correspond to 1 Item.
+    public virtual ICollection<Price> Prices { get; set; }
 
 
     //Methods

@@ -22,7 +22,11 @@ namespace n01629177_passion_project.Models {
 
 
     //A User can have many PriceRecords; And a Price Record can have many users.
-    public virtual ICollection<BasePriceRecord> PriceRecords { get; set; }
+    //public virtual ICollection<BasePriceRecord> PriceRecords { get; set; }
+
+
+    //A User can have attestations for many prices and a price can have attestations by many users.
+    public virtual ICollection<Price> PriceAttestations { get; set; }
   }
 
   public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
@@ -35,16 +39,22 @@ namespace n01629177_passion_project.Models {
     public DbSet<Item> Items { get; set; }
     public DbSet<PromoType> PromoTypes { get; set; }
     public DbSet<PromoRecord> PromoRecordRecords { get; set; }
-    public DbSet<BasePriceRecord> BasePriceRecords { get; set; }
+    //public DbSet<BasePriceRecord> BasePriceRecords { get; set; }
+    public DbSet<Price> Prices { get; set; }
 
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder) {
       base.OnModelCreating(modelBuilder);
 
 
-      modelBuilder.Entity<Item>().HasMany(e => e.ItemPriceRecords).WithRequired(e => e.Item).HasForeignKey(e => e.ItemId);
-      modelBuilder.Entity<Shop>().HasMany(e => e.PriceRecords).WithRequired(e => e.Shop).HasForeignKey(e => e.ShopId);
-      modelBuilder.Entity<ApplicationUser>().HasMany(e => e.PriceRecords).WithMany(e => e.Users);
+      //modelBuilder.Entity<Item>().HasMany(e => e.ItemPriceRecords).WithRequired(e => e.Item).HasForeignKey(e => e.ItemId);
+      //modelBuilder.Entity<Shop>().HasMany(e => e.PriceRecords).WithRequired(e => e.Shop).HasForeignKey(e => e.ShopId);
+      //modelBuilder.Entity<ApplicationUser>().HasMany(e => e.PriceRecords).WithMany(e => e.Users);
+
+
+      modelBuilder.Entity<Item>().HasMany(e => e.Prices).WithRequired(e => e.Item).HasForeignKey(e => e.ItemId);
+      modelBuilder.Entity<Shop>().HasMany(e => e.Prices).WithRequired(e => e.Shop).HasForeignKey(e => e.ShopId);
+      modelBuilder.Entity<ApplicationUser>().HasMany(e => e.PriceAttestations).WithMany(e => e.Users);
     }
 
 

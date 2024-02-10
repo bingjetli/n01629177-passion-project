@@ -123,7 +123,7 @@ namespace n01629177_passion_project.Controllers {
     /// <returns>
     /// HTTP OK if the insert was successful. HTTP BadRequest otherwise.
     /// </returns>
-    [ResponseType(typeof(Shop))]
+    [ResponseType(typeof(ShopDto))]
     public IHttpActionResult PostShop(ShopPostPayload payload) {
       if (!ModelState.IsValid) {
         return BadRequest(ModelState);
@@ -157,7 +157,7 @@ namespace n01629177_passion_project.Controllers {
       db.SaveChanges();
 
 
-      return Ok(new_shop);
+      return Ok(new_shop.ToDto());
     }
 
 

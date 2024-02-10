@@ -17,14 +17,14 @@ namespace n01629177_passion_project.Controllers {
     private ApplicationDbContext db = new ApplicationDbContext();
 
     // GET: api/PriceRecordData
-    public IQueryable<BasePriceRecord> GetBasePriceRecords() {
-      return db.BasePriceRecords;
+    public IQueryable<Price> GetBasePriceRecords() {
+      return db.Prices;
     }
 
     // GET: api/PriceRecordData/5
-    [ResponseType(typeof(BasePriceRecord))]
+    [ResponseType(typeof(Price))]
     public async Task<IHttpActionResult> GetBasePriceRecord(int id) {
-      BasePriceRecord basePriceRecord = await db.BasePriceRecords.FindAsync(id);
+      Price basePriceRecord = await db.Prices.FindAsync(id);
       if (basePriceRecord == null) {
         return NotFound();
       }
@@ -34,12 +34,12 @@ namespace n01629177_passion_project.Controllers {
 
     // PUT: api/PriceRecordData/5
     [ResponseType(typeof(void))]
-    public async Task<IHttpActionResult> PutBasePriceRecord(int id, BasePriceRecord basePriceRecord) {
+    public async Task<IHttpActionResult> PutBasePriceRecord(int id, Price basePriceRecord) {
       if (!ModelState.IsValid) {
         return BadRequest(ModelState);
       }
 
-      if (id != basePriceRecord.BasePriceRecordId) {
+      if (id != basePriceRecord.PriceId) {
         return BadRequest();
       }
 
@@ -77,10 +77,10 @@ namespace n01629177_passion_project.Controllers {
 
 
       //Then create the BasePriceRecord.
-      BasePriceRecord price_record = new BasePriceRecord {
-        BasePriceRecordCreationDate = payload.CreationDate,
-        BasePriceRecordLastAttestationDate = payload.LastAttestationDate,
-        BasePrice = payload.BasePrice,
+      Price price_record = new Price {
+        CreationDate = payload.CreationDate,
+        LastAttestationDate = payload.LastAttestationDate,
+        Value = payload.BasePrice,
         Item = item,
         ItemId = payload.ItemId,
         Shop = shop,
@@ -94,7 +94,7 @@ namespace n01629177_passion_project.Controllers {
 
 
       //Then add the price record to the table.
-      db.BasePriceRecords.Add(price_record);
+      db.Prices.Add(price_record);
 
 
       //And save the changes.
@@ -108,12 +108,12 @@ namespace n01629177_passion_project.Controllers {
     // DELETE: api/PriceRecordData/5
     [ResponseType(typeof(BasePriceRecord))]
     public async Task<IHttpActionResult> DeleteBasePriceRecord(int id) {
-      BasePriceRecord basePriceRecord = await db.BasePriceRecords.FindAsync(id);
+      Price basePriceRecord = await db.Prices.FindAsync(id);
       if (basePriceRecord == null) {
         return NotFound();
       }
 
-      db.BasePriceRecords.Remove(basePriceRecord);
+      db.Prices.Remove(basePriceRecord);
       await db.SaveChangesAsync();
 
       return Ok(basePriceRecord);
@@ -127,7 +127,7 @@ namespace n01629177_passion_project.Controllers {
     }
 
     private bool BasePriceRecordExists(int id) {
-      return db.BasePriceRecords.Count(e => e.BasePriceRecordId == id) > 0;
+      return db.Prices.Count(e => e.PriceId == id) > 0;
     }
   }
 }
