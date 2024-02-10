@@ -4,16 +4,19 @@
   ViewBag.Title = "Search Results | Jusqu'a";
 }
 
-@foreach (var item in Model) {
-  <div class="row">
-    <div class="card mb-2">
-      <a href="/Item/Details?itemId=@item.ItemId">
+<div class="row">
+  <div class="col-sm-8">
+    <div class="list-group">
 
-        <p class="text-capitalize">@item.Brand - @item.Name</p>
-        <p class="text-capitalize">@item.Variant</p>
+      @foreach (var i in Model) {
 
-      </a>
+       <a class="list-group-item list-group-item-action py-4" href="/Item/Details?itemId=@i.ItemId">
+         <div class="text-uppercase fs-6 text-muted">@i.Brand</div>
+         <div class="text-capitalize fs-5">@i.Name - @i.Variant </div>
+       </a>
+
+      }
+
     </div>
   </div>
-}
-
+</div>

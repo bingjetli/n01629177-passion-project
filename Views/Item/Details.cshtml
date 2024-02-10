@@ -4,21 +4,28 @@
     ViewBag.Title = Model.Brand + " " + @Model.Name + " " + @Model.Variant;
 }
 
-<h2 class="text-capitalize">@Model.Brand - @Model.Name - @Model.Variant</h2>
+<h2 class="text-capitalize py-4">
+  <div class="text-muted text-uppercase">@Model.Brand</div>
+  <div class="text-capitalize">@Model.Name - @Model.Variant</div>
+</h2>
 
 <section class="row">
+  <div class="col-sm-8">
 
-  <h3>Price Data</h3>
-  <a class="btn btn-primary" href="/Price/CreateInput?itemId=@Model.ItemId">Create a new Price Entry</a>
+    <h3>Price Data</h3>
+    <a class="btn btn-link" href="/Price/CreateInput?itemId=@Model.ItemId">Create a new Price Entry</a>
 
+  </div>
 </section>
 
 
-<section class="row">
+<section class="row mt-5">
+  <div class="col-sm-8">
 
-  <h3>Promo Data</h3>
-  <a class="btn btn-primary" href="#">Create a new Promo Entry</a>
+    <h3>Promo Data</h3>
+    <a class="btn btn-link" href="#">Create a new Promo Entry</a>
 
+  </div>
 </section>
 
 
