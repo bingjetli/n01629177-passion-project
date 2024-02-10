@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http.Results;
 using System.Web.Mvc;
 
 namespace n01629177_passion_project.Controllers {
@@ -16,10 +17,27 @@ namespace n01629177_passion_project.Controllers {
       return View();
     }
 
-    // GET: Item/Details/5
-    public ActionResult Details(int id) {
+
+    // GET: Item/Details?itemId={ITEM_ID}
+    [HttpGet]
+    public async Task<ActionResult> Details([System.Web.Http.FromUri] int itemId) {
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+        HttpResponseMessage response = await http_client.GetAsync($"{base_uri}/api/ItemData/{itemId}");
+
+
+        if (response.IsSuccessStatusCode == true) {
+          var response_data = await response.Content.ReadAsAsync<ItemDto>();
+
+
+          return View(response_data);
+        }
+      }
       return View();
     }
+
 
     // GET: Item/Create
     public ActionResult Create() {
@@ -55,7 +73,7 @@ namespace n01629177_passion_project.Controllers {
         }
       }
 
-      return View();
+      return Content("An error occured");
     }
 
     // POST: Item/Create

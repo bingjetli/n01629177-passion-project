@@ -46,10 +46,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -186,6 +198,9 @@
     <Compile Include="Controllers\ItemController.cs" />
     <Compile Include="Controllers\ItemDataController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\PriceRecordController.cs" />
+    <Compile Include="Controllers\PriceRecordDataController.cs" />
+    <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ShopDataController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -221,6 +236,38 @@
     <Compile Include="Migrations\202402050158415_renamed-promo-record-book.cs" />
     <Compile Include="Migrations\202402050158415_renamed-promo-record-book.designer.cs">
       <DependentUpon>202402050158415_renamed-promo-record-book.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402082058411_modify-shop-table.cs" />
+    <Compile Include="Migrations\202402082058411_modify-shop-table.designer.cs">
+      <DependentUpon>202402082058411_modify-shop-table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402082112168_add-contraints-shop-table.cs" />
+    <Compile Include="Migrations\202402082112168_add-contraints-shop-table.designer.cs">
+      <DependentUpon>202402082112168_add-contraints-shop-table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402082133379_modify-contraints-shop-table.cs" />
+    <Compile Include="Migrations\202402082133379_modify-contraints-shop-table.designer.cs">
+      <DependentUpon>202402082133379_modify-contraints-shop-table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402082315487_add-column-shop-table.cs" />
+    <Compile Include="Migrations\202402082315487_add-column-shop-table.designer.cs">
+      <DependentUpon>202402082315487_add-column-shop-table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402090343130_modify-table-items.cs" />
+    <Compile Include="Migrations\202402090343130_modify-table-items.designer.cs">
+      <DependentUpon>202402090343130_modify-table-items.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402090450514_item-price-relationship.cs" />
+    <Compile Include="Migrations\202402090450514_item-price-relationship.designer.cs">
+      <DependentUpon>202402090450514_item-price-relationship.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402090831183_modify-item-price-relationship.cs" />
+    <Compile Include="Migrations\202402090831183_modify-item-price-relationship.designer.cs">
+      <DependentUpon>202402090831183_modify-item-price-relationship.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402100412249_modify-shop-overpassid-type.cs" />
+    <Compile Include="Migrations\202402100412249_modify-shop-overpassid-type.designer.cs">
+      <DependentUpon>202402100412249_modify-shop-overpassid-type.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -307,9 +354,12 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Item\Search.cshtml" />
+    <Content Include="Views\Item\Details.cshtml" />
+    <Content Include="Views\PriceRecord\CreateInput.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Shop\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
@@ -362,6 +412,30 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202402050158415_renamed-promo-record-book.resx">
       <DependentUpon>202402050158415_renamed-promo-record-book.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402082058411_modify-shop-table.resx">
+      <DependentUpon>202402082058411_modify-shop-table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402082112168_add-contraints-shop-table.resx">
+      <DependentUpon>202402082112168_add-contraints-shop-table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402082133379_modify-contraints-shop-table.resx">
+      <DependentUpon>202402082133379_modify-contraints-shop-table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402082315487_add-column-shop-table.resx">
+      <DependentUpon>202402082315487_add-column-shop-table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402090343130_modify-table-items.resx">
+      <DependentUpon>202402090343130_modify-table-items.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402090450514_item-price-relationship.resx">
+      <DependentUpon>202402090450514_item-price-relationship.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402090831183_modify-item-price-relationship.resx">
+      <DependentUpon>202402090831183_modify-item-price-relationship.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402100412249_modify-shop-overpassid-type.resx">
+      <DependentUpon>202402100412249_modify-shop-overpassid-type.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

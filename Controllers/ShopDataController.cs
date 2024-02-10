@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,20 +16,64 @@ namespace n01629177_passion_project.Controllers {
     private ApplicationDbContext db = new ApplicationDbContext();
 
     // GET: api/ShopData
-    public IQueryable<Shop> GetShops() {
-      return db.Shops;
+    [ResponseType(typeof(ICollection<ShopDto>))]
+    public IHttpActionResult GetShops() {
+      ICollection<Shop> shops = db.Shops.ToList();
+      ICollection<ShopDto> shops_dto = new List<ShopDto>();
+
+      foreach (var s in shops) {
+        shops_dto.Add(s.ToDto());
+      }
+
+
+      return Ok(shops_dto);
     }
 
-    // GET: api/ShopData/5
-    [ResponseType(typeof(Shop))]
-    public IHttpActionResult GetShop(int id) {
-      Shop shop = db.Shops.Find(id);
+
+    // GET: api/ShopData?shopId={SHOP_ID}&searchOverpassId={TRUE/FALSE}
+    //[HttpGet]
+    //[ResponseType(typeof(Shop))]
+    //public IHttpActionResult GetShop(
+    //    int shopId,
+    //    bool? searchOverpassId
+    //  ) {
+
+    //  Shop shop;
+    //  if (searchOverpassId == true) {
+    //    shop = db.Shops.Where(s => s.ShopOverpassId == shopId).FirstOrDefault();
+    //  }
+    //  else {
+    //    shop = db.Shops.Find(shopId);
+    //  }
+
+
+    //  if (shop == null) {
+    //    return NotFound();
+    //  }
+
+
+    //  return Ok(shop);
+    //}
+
+
+    // GET: api/ShopData?shopOverpassId={SHOP_OVERPASS_ID}
+    [HttpGet]
+    [ResponseType(typeof(ShopDto))]
+    public IHttpActionResult GetShopByOverpassId([System.Web.Http.FromUri] long shopOverpassId) {
+
+      //TODO : Find out why the heck this fails to handle integers greater than 9 digits when using the
+      //`int` datatype for the parameter. This shouldn't fail since int32 values range from [-2,147,483,647 to 2,147,483,647].
+      //But for some reason `https://localhost:44320/api/ShopData?shopOverpassId=5355856076` fails, whilst
+      // `https://localhost:44320/api/ShopData?shopOverpassId=535585607` works. What??
+
+      Shop shop = db.Shops.Where(s => s.ShopOverpassId == shopOverpassId).FirstOrDefault();
       if (shop == null) {
         return NotFound();
       }
 
-      return Ok(shop);
+      return Ok(shop.ToDto());
     }
+
 
     // PUT: api/ShopData/5
     [ResponseType(typeof(void))]
@@ -58,18 +103,61 @@ namespace n01629177_passion_project.Controllers {
       return StatusCode(HttpStatusCode.NoContent);
     }
 
+
     // POST: api/ShopData
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="payload">
+    ///   This should be an object with the following schema :
+    ///   {
+    ///     "ShopOverpassId" : int?,
+    ///     "ShopName" : string,
+    ///     "ShopAddress" : string,
+    ///     "ShopLatitude" : double,
+    ///     "ShopLongitude" : double,
+    ///   }
+    /// </param>
+    /// <returns>
+    /// HTTP OK if the insert was successful. HTTP BadRequest otherwise.
+    /// </returns>
     [ResponseType(typeof(Shop))]
-    public IHttpActionResult PostShop(Shop shop) {
+    public IHttpActionResult PostShop(ShopPostPayload payload) {
       if (!ModelState.IsValid) {
         return BadRequest(ModelState);
       }
 
-      db.Shops.Add(shop);
+
+      //SELF : the `.Add()` method does not overwrite existing entries. If elements are deleted
+      //from the database table, autoincrement will still increment from the previous value.
+      //This method also doesn't allow setting the primary key.
+
+      //This method should avoid creating duplicate entries, it should check the database for
+      //an existing `ShopOverpassId` first. If it detects one, it should fail.
+      Shop existing_shop = db.Shops
+        .Where(s => s.ShopOverpassId == payload.ShopOverpassId)
+        .SingleOrDefault();
+
+      if (existing_shop != null) {
+        return BadRequest($"Shop with an id of {payload.ShopOverpassId} already exists.");
+      }
+
+
+      Shop new_shop = db.Shops.Add(new Shop {
+        ShopId = -1,
+        ShopOverpassId = (long)payload.ShopOverpassId,
+        ShopName = payload.ShopName,
+        ShopAddress = payload.ShopAddress,
+        ShopLatitude = payload.ShopLatitude,
+        ShopLongitude = payload.ShopLongitude
+      });
+
       db.SaveChanges();
 
-      return CreatedAtRoute("DefaultApi", new { id = shop.ShopId }, shop);
+
+      return Ok(new_shop);
     }
+
 
     // DELETE: api/ShopData/5
     [ResponseType(typeof(Shop))]

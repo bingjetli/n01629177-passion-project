@@ -1,0 +1,25 @@
+﻿@model n01629177_passion_project.Models.ItemDto
+
+@{
+    ViewBag.Title = "View";
+}
+
+<h2 class="text-capitalize">@Model.ItemBrand - @Model.ItemName - @Model.ItemVariant</h2>
+
+<section class="row">
+
+  <h3>Price Data</h3>
+  <a class="btn btn-primary" href="/PriceRecord/CreateInput?itemId=@Model.ItemId">Create a new Price Entry</a>
+
+</section>
+
+
+<section class="row">
+
+  <h3>Promo Data</h3>
+  <a class="btn btn-primary" href="#">Create a new Promo Entry</a>
+
+</section>
+
+
+

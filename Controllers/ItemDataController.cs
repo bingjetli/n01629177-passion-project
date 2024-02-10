@@ -8,6 +8,7 @@ using System.EnterpriseServices;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -16,39 +17,66 @@ namespace n01629177_passion_project.Controllers {
     private ApplicationDbContext db = new ApplicationDbContext();
 
     // GET: api/ItemData
-    public IQueryable<Item> GetItems() {
-      return db.Items;
-    }
+    public IEnumerable<ItemDto> GetItems() {
+      var items = db.Items.AsEnumerable();
+      var item_dtos = new List<ItemDto>();
 
-    // GET: api/ItemData/5
-    [ResponseType(typeof(Item))]
-    public IHttpActionResult GetItem(int id) {
-      Item item = db.Items.Find(id);
-      if (item == null) {
-        return NotFound();
+
+      foreach (var i in items) {
+        item_dtos.Add(i.ToDto());
       }
 
-      return Ok(item);
+
+      return item_dtos;
     }
 
+
+    // GET: api/ItemData?id={ITEM_ID}
+    public ItemDto GetItem([System.Web.Http.FromUri] int id) {
+      Item item = db.Items.Find(id);
+
+
+      if (item == null) {
+        return null;
+      }
+
+
+      return item.ToDto();
+    }
+
+
     // GET : api/ItemData?search={SEARCH_STRING}
-    public IHttpActionResult GetItems([FromUri] string search) {
+    public List<ItemDto> GetItems([FromUri] string search) {
 
       //Trim the search string and normalize the search string to a lowercase value.
       string search_string = search == null ? "" : search.Trim().ToLower();
 
 
       //Try to search for the entire search string first.
-      IEnumerable<Item> initial_search_results = db.Items
+      var results = db.Items
         .Where(i => (
           i.ItemName.Contains(search_string) ||
           i.ItemBrand.Contains(search_string) ||
           i.ItemVariant.Contains(search_string)
         ));
 
+      List<ItemDto> results_dto = new List<ItemDto>();
+      foreach (var r in results) {
+        results_dto.Add(r.ToDto());
+      }
 
-      //Return HTTP 200 and the search results.
-      return Ok(initial_search_results);
+
+
+      //Check if any results were found using the initial string.
+      // if(initial_search_results.Count() == 0) {
+
+      //   //TODO: If no results were found, try to see if the search string can be
+      //   //split into individual tokens and try to search for those tokens
+      //   //instead.
+      // }
+
+
+      return results_dto;
     }
 
     // PUT: api/ItemData/5
