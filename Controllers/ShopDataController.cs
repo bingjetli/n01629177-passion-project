@@ -61,10 +61,12 @@ namespace n01629177_passion_project.Controllers {
     [ResponseType(typeof(ShopDto))]
     public IHttpActionResult GetShopByOverpassId([System.Web.Http.FromUri] long shopOverpassId) {
 
-      //TODO : Find out why the heck this fails to handle integers greater than 9 digits when using the
+      //RESOLVED : Find out why the heck this fails to handle integers greater than 9 digits when using the
       //`int` datatype for the parameter. This shouldn't fail since int32 values range from [-2,147,483,647 to 2,147,483,647].
       //But for some reason `https://localhost:44320/api/ShopData?shopOverpassId=5355856076` fails, whilst
-      // `https://localhost:44320/api/ShopData?shopOverpassId=535585607` works. What??
+      // `https://localhost:44320/api/ShopData?shopOverpassId=535585607` works. 
+
+      //As it turns out, 5 355 856 076 does in-fact exceed the max value for int32. The spacing was visually deceptive to me.
 
       Shop shop = db.Shops.Where(s => s.ShopOverpassId == shopOverpassId).FirstOrDefault();
       if (shop == null) {
