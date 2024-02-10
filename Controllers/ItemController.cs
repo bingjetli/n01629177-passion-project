@@ -20,22 +20,21 @@ namespace n01629177_passion_project.Controllers {
 
     // GET: Item/Details?itemId={ITEM_ID}
     [HttpGet]
-    public async Task<ActionResult> Details([System.Web.Http.FromUri] int itemId) {
+    public ActionResult Details([System.Web.Http.FromUri] int itemId) {
       using (var http_client = new HttpClient()) {
 
         //Construct the base URi and fetch the resource.
         string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
-        HttpResponseMessage response = await http_client.GetAsync($"{base_uri}/api/ItemData/{itemId}");
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/ItemData?id={itemId}").Result;
 
 
-        if (response.IsSuccessStatusCode == true) {
-          var response_data = await response.Content.ReadAsAsync<ItemDto>();
-
-
-          return View(response_data);
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+          return Content(response.Content.ToString());
         }
+
+
+        return View(response.Content.ReadAsAsync<ItemSerializable>().Result);
       }
-      return View();
     }
 
 
@@ -50,7 +49,7 @@ namespace n01629177_passion_project.Controllers {
 
     //Unable to use the `using` keyword for `.FromUri` since that contains 
     //definitions for the annotations of the Http Verbs as well.
-    public async Task<ActionResult> Search([System.Web.Http.FromUri] string query) {
+    public ActionResult Search([System.Web.Http.FromUri] string query) {
 
       //The `using` keyword allows automatic disposal of resources.
       //This is similar to the `with` keyword in Python.
@@ -62,19 +61,15 @@ namespace n01629177_passion_project.Controllers {
         string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
 
 
-        HttpResponseMessage response = await http_client.GetAsync($"{base_uri}/api/ItemData?search={query}");
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/ItemData?search={query}").Result;
 
+        return View(response.Content.ReadAsAsync<IEnumerable<ItemSerializable>>().Result);
 
-        if (response.IsSuccessStatusCode == true) {
-          var response_data = await response.Content.ReadAsAsync<IEnumerable<Item>>();
-
-
-          return View(response_data);
-        }
       }
-
-      return Content("An error occured");
     }
+
+
+
 
     // POST: Item/Create
     [HttpPost]

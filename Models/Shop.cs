@@ -36,18 +36,6 @@ namespace n01629177_passion_project.Models {
     public virtual ICollection<Price> Prices { get; set; }
 
 
-    //public ShopDto ToDto() {
-    //  return new ShopDto {
-    //    ShopId = ShopId,
-    //    ShopOverpassId = ShopOverpassId,
-    //    ShopLatitude = ShopLatitude,
-    //    ShopLongitude = ShopLongitude,
-    //    ShopName = ShopName,
-    //    ShopAddress = ShopAddress
-    //  };
-    //}
-
-
     public ShopSerializable ToSerializable() {
       return new ShopSerializable {
         ShopId = this.ShopId,
@@ -79,50 +67,4 @@ namespace n01629177_passion_project.Models {
       return new StringContent(this.ToString(), Encoding.UTF8, "application/json");
     }
   }
-
-
-
-
-
-
-
-  //Deprecated.
-  //public class ShopPostPayload {
-  //  public long? ShopOverpassId { get; set; }
-
-  //  [Required]
-  //  public float ShopLatitude { get; set; }
-
-  //  [Required]
-  //  public float ShopLongitude { get; set; }
-
-  //  [Required]
-  //  public string ShopName { get; set; }
-
-  //  public string ShopAddress { get; set; }
-  //}
-
-
-
-
-  ////Duplicated to avoid breaking existing functionality while testing.
-  ////TODO : merge this with `ShopPostPayload`.
-  //public class ShopDto {
-  //  public int? ShopId { get; set; }
-
-  //  public long? ShopOverpassId { get; set; }
-
-  //  [Required]
-  //  public float ShopLatitude { get; set; }
-
-  //  [Required]
-  //  public float ShopLongitude { get; set; }
-
-  //  [Required]
-  //  public string ShopName { get; set; }
-
-  //  public string ShopAddress { get; set; }
-  //}
-
-
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.EnterpriseServices;
 using System.Linq;
 using System.Net;
@@ -11,92 +12,129 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Mvc;
+using System.Web.WebPages;
 
 namespace n01629177_passion_project.Controllers {
   public class ItemDataController : ApiController {
     private ApplicationDbContext db = new ApplicationDbContext();
 
     // GET: api/ItemData
-    public IEnumerable<ItemDto> GetItems() {
-      var items = db.Items.AsEnumerable();
-      var item_dtos = new List<ItemDto>();
-
-
-      foreach (var i in items) {
-        item_dtos.Add(i.ToDto());
-      }
-
-
-      return item_dtos;
+    /// <summary>
+    /// Returns a generic collection of all the Items in the database as Serializable objects.
+    /// </summary>
+    /// <returns>
+    /// HTTP 200 (OK) with an ICollection of ItemSerializables.
+    /// </returns>
+    [ResponseType(typeof(ICollection<ItemSerializable>))]
+    public IHttpActionResult GetAllItems() {
+      return Ok(db.Items.AsEnumerable().Select(i => i.ToSerializable()));
     }
 
 
+
+
     // GET: api/ItemData?id={ITEM_ID}
-    public ItemDto GetItem([System.Web.Http.FromUri] int id) {
+    /// <summary>
+    /// Attempts to find and return a Serializable Item associated with the specified id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>
+    /// HTTP 200 (OK) with the ItemSerializable if an item is found.
+    /// HTTP 404 (Not Found) otherwise.
+    /// </returns>
+    [ResponseType(typeof(ItemSerializable))]
+    public IHttpActionResult GetItem([FromUri] int id) {
       Item item = db.Items.Find(id);
 
 
       if (item == null) {
-        return null;
+        return NotFound();
       }
 
 
-      return item.ToDto();
+      return Ok(item.ToSerializable());
     }
 
 
+
+
     // GET : api/ItemData?search={SEARCH_STRING}
-    public List<ItemDto> GetItems([FromUri] string search) {
+    /// <summary>
+    /// Attempts to search the database for Items that contain the specified search term.
+    /// The search checks the item's name, brand and variant to see if it contains
+    /// the specified search term.
+    /// </summary>
+    /// <param name="search"></param>
+    /// <returns>
+    /// HTTP 200 (Ok) with an ICollection of ItemSerializables.
+    /// </returns>
+    [ResponseType(typeof(ICollection<ItemSerializable>))]
+    public IHttpActionResult GetSearchResults([FromUri] string search) {
 
       //Trim the search string and normalize the search string to a lowercase value.
       string search_string = search == null ? "" : search.Trim().ToLower();
 
 
-      //Try to search for the entire search string first.
-      var results = db.Items
-        .Where(i => (
-          i.ItemName.Contains(search_string) ||
-          i.ItemBrand.Contains(search_string) ||
-          i.ItemVariant.Contains(search_string)
-        ));
-
-      List<ItemDto> results_dto = new List<ItemDto>();
-      foreach (var r in results) {
-        results_dto.Add(r.ToDto());
-      }
-
-
-
-      //Check if any results were found using the initial string.
-      // if(initial_search_results.Count() == 0) {
-
-      //   //TODO: If no results were found, try to see if the search string can be
-      //   //split into individual tokens and try to search for those tokens
-      //   //instead.
-      // }
-
-
-      return results_dto;
+      return Ok(
+        db.Items
+          .Where(i => (
+            i.Name.Contains(search_string) ||
+            i.Brand.Contains(search_string) ||
+            i.Variant.Contains(search_string)
+          ))
+          .AsEnumerable()
+          .Select(i => i.ToSerializable())
+        );
     }
 
-    // PUT: api/ItemData/5
+
+
+
+    // PUT: api/ItemData
+    /// <summary>
+    /// Attempts to update the specified item in the database.
+    /// 
+    /// The ItemId must be included as part of the request.
+    /// </summary>
+    /// <param name="updated"></param>
+    /// <returns>
+    /// HTTP 204 (No Content) if the update was successful.
+    /// HTTP 400 (Bad Request) and HTTP 404 (Not Found) Otherwise.
+    /// </returns>
     [ResponseType(typeof(void))]
-    public IHttpActionResult PutItem(int id, Item item) {
+    public IHttpActionResult PutItem(ItemSerializable updated) {
       if (!ModelState.IsValid) {
         return BadRequest(ModelState);
       }
 
-      if (id != item.ItemId) {
-        return BadRequest();
+      Item item = db.Items.Find(updated.ItemId);
+      if (item == null) {
+        return BadRequest($"The Item with the following ItemId {updated.ItemId} was not found.");
       }
 
+
+      if (updated.Name.IsEmpty() == false) {
+        item.Name = updated.Name;
+      }
+
+      if (updated.Brand.IsEmpty() == false) {
+        item.Brand = updated.Brand;
+      }
+
+      if (updated.Variant.IsEmpty() == false) {
+        item.Variant = updated.Variant;
+      }
+
+
       db.Entry(item).State = EntityState.Modified;
+
 
       try {
         db.SaveChanges();
       }
       catch (DbUpdateConcurrencyException) {
-        if (!ItemExists(id)) {
+        if (!ItemExists(updated.ItemId)) {
           return NotFound();
         }
         else {
@@ -104,25 +142,60 @@ namespace n01629177_passion_project.Controllers {
         }
       }
 
+
       return StatusCode(HttpStatusCode.NoContent);
     }
 
+
+
+
     // POST: api/ItemData
-    [ResponseType(typeof(Item))]
-    public IHttpActionResult PostItem(Item item) {
+    /// <summary>
+    /// Attempts to create a new item in the database with the specified payload.
+    /// </summary>
+    /// <param name="payload"></param>
+    /// <returns>
+    /// HTTP 200 (Ok) with the newly created item if successful.
+    /// HTTP 400 (Bad Request) otherwise.
+    /// </returns>
+    [ResponseType(typeof(ItemSerializable))]
+    public IHttpActionResult PostItem(ItemSerializable payload) {
       if (!ModelState.IsValid) {
         return BadRequest(ModelState);
       }
 
-      db.Items.Add(item);
+
+      Item new_item = new Item {
+        ItemId = 0,
+        Brand = payload.Brand,
+        Name = payload.Name,
+        Variant = payload.Variant,
+        Prices = new List<Price>(),
+      };
+
+
+      db.Items.Add(new_item);
       db.SaveChanges();
 
-      return CreatedAtRoute("DefaultApi", new { id = item.ItemId }, item);
+
+      return Ok(new_item.ToSerializable());
     }
 
-    // DELETE: api/ItemData/5
-    [ResponseType(typeof(Item))]
-    public IHttpActionResult DeleteItem(int id) {
+
+
+
+    // DELETE: api/ItemData?id={ITEM_ID}
+    /// <summary>
+    /// Attempts to delete the Item associated with the specified ItemId from
+    /// the database.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>
+    /// HTTP 200 (Ok) along with the deleted Item if successful.
+    /// HTTP 404 (Not Found) otherwise.
+    /// </returns>
+    [ResponseType(typeof(ItemSerializable))]
+    public IHttpActionResult DeleteItem([FromUri] int id) {
       Item item = db.Items.Find(id);
       if (item == null) {
         return NotFound();
@@ -131,8 +204,9 @@ namespace n01629177_passion_project.Controllers {
       db.Items.Remove(item);
       db.SaveChanges();
 
-      return Ok(item);
+      return Ok(item.ToSerializable());
     }
+
 
     protected override void Dispose(bool disposing) {
       if (disposing) {

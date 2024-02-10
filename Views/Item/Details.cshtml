@@ -1,10 +1,10 @@
-﻿@model n01629177_passion_project.Models.ItemDto
+﻿@model n01629177_passion_project.Models.ItemSerializable
 
 @{
-    ViewBag.Title = "View";
+    ViewBag.Title = Model.Brand + " " + @Model.Name + " " + @Model.Variant;
 }
 
-<h2 class="text-capitalize">@Model.ItemBrand - @Model.ItemName - @Model.ItemVariant</h2>
+<h2 class="text-capitalize">@Model.Brand - @Model.Name - @Model.Variant</h2>
 
 <section class="row">
 

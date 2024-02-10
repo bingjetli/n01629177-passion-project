@@ -1,7 +1,7 @@
-﻿@model IEnumerable<n01629177_passion_project.Models.Item>
+﻿@model IEnumerable<n01629177_passion_project.Models.ItemSerializable>
 
 @{
-  ViewBag.Title = "Search";
+  ViewBag.Title = "Search Results | Jusqu'a";
 }
 
 @foreach (var item in Model) {
@@ -9,8 +9,8 @@
     <div class="card mb-2">
       <a href="/Item/Details?itemId=@item.ItemId">
 
-        <p class="text-capitalize">@item.ItemBrand - @item.ItemName</p>
-        <p class="text-capitalize">@item.ItemVariant</p>
+        <p class="text-capitalize">@item.Brand - @item.Name</p>
+        <p class="text-capitalize">@item.Variant</p>
 
       </a>
     </div>

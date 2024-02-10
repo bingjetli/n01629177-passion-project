@@ -25,7 +25,7 @@ namespace n01629177_passion_project.Controllers {
     /// </returns>
     [ResponseType(typeof(ICollection<ShopSerializable>))]
     public IHttpActionResult GetAllShops() {
-      return Ok(db.Shops.Select(s => s.ToSerializable()).AsEnumerable());
+      return Ok(db.Shops.AsEnumerable().Select(s => s.ToSerializable()));
     }
 
 
@@ -238,7 +238,8 @@ namespace n01629177_passion_project.Controllers {
         Name = payload.Name,
         Address = payload.Address,
         Latitude = (float)payload.Latitude,
-        Longitude = (float)payload.Longitude
+        Longitude = (float)payload.Longitude,
+        Prices = new List<Price>(),
       });
 
 

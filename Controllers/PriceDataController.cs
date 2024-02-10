@@ -24,7 +24,7 @@ namespace n01629177_passion_project.Controllers {
     /// </returns>
     [ResponseType(typeof(ICollection<Price>))]
     public IHttpActionResult GetAllPrices() {
-      return Ok(db.Prices.Select(p => p.ToSerializable()).AsEnumerable());
+      return Ok(db.Prices.AsEnumerable().Select(p => p.ToSerializable()));
     }
 
 
