@@ -51,31 +51,27 @@ namespace n01629177_passion_project.Controllers {
           int? shop_id = null;
           //First check to see if the shop exists in the database already. If
           //not, try to create the shop with the information provided.
-          HttpResponseMessage response = http.GetAsync($"{base_uri}/api/ShopData?shopOverpassId={form["shopOverpassId"]}").Result;
+          HttpResponseMessage response = http.GetAsync($"{base_uri}/api/ShopData?id={form["shopOverpassId"]}&isOverpass=true").Result;
           if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
 
             //Then we try to create the shop...
-            ShopPostPayload shop_payload = new ShopPostPayload {
-              ShopOverpassId = long.Parse(form["shopOverpassId"]),
-              ShopName = form["shopName"],
-              ShopAddress = form["shopAddress"],
-              ShopLatitude = float.Parse(form["shopLatitude"]),
-              ShopLongitude = float.Parse(form["shopLongitude"]),
+            ShopSerializable shop_payload = new ShopSerializable {
+              OverpassId = long.Parse(form["shopOverpassId"]),
+              Name = form["shopName"],
+              Address = form["shopAddress"],
+              Latitude = float.Parse(form["shopLatitude"]),
+              Longitude = float.Parse(form["shopLongitude"]),
             };
 
 
             //Make a request to create this shop in the database. 
-            response = http.PostAsync($"{base_uri}/api/ShopData", new StringContent(
-              new JavaScriptSerializer().Serialize(shop_payload),
-              Encoding.UTF8,
-              "application/json"
-            )).Result;
+            response = http.PostAsync($"{base_uri}/api/ShopData", shop_payload.ToHttpContent()).Result;
 
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK) {
 
               //Successfully created the shop entry...
-              shop_id = response.Content.ReadAsAsync<ShopDto>().Result.ShopId;
+              shop_id = response.Content.ReadAsAsync<ShopSerializable>().Result.ShopId;
             }
             else {
 
@@ -86,7 +82,7 @@ namespace n01629177_passion_project.Controllers {
           else if (response.StatusCode == System.Net.HttpStatusCode.OK) {
 
             //Shop already exists and was found in the database...
-            shop_id = response.Content.ReadAsAsync<ShopDto>().Result.ShopId;
+            shop_id = response.Content.ReadAsAsync<ShopSerializable>().Result.ShopId;
           }
 
 

@@ -200,8 +200,6 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PriceController.cs" />
     <Compile Include="Controllers\PriceDataController.cs" />
-    <Compile Include="Controllers\PriceRecordController.cs" />
-    <Compile Include="Controllers\PriceRecordDataController.cs" />
     <Compile Include="Controllers\ShopController.cs" />
     <Compile Include="Controllers\ShopDataController.cs" />
     <Compile Include="Global.asax.cs">
@@ -274,6 +272,10 @@
     <Compile Include="Migrations\202402100630225_replace-base-price-record-table.cs" />
     <Compile Include="Migrations\202402100630225_replace-base-price-record-table.designer.cs">
       <DependentUpon>202402100630225_replace-base-price-record-table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402102015591_standardized-shop-schema.cs" />
+    <Compile Include="Migrations\202402102015591_standardized-shop-schema.designer.cs">
+      <DependentUpon>202402102015591_standardized-shop-schema.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -447,6 +449,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202402100630225_replace-base-price-record-table.resx">
       <DependentUpon>202402100630225_replace-base-price-record-table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402102015591_standardized-shop-schema.resx">
+      <DependentUpon>202402102015591_standardized-shop-schema.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
