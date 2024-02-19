@@ -1,4 +1,5 @@
 ﻿using n01629177_passion_project.Models;
+using n01629177_passion_project.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,7 +26,7 @@ namespace n01629177_passion_project.Controllers {
 
         //Construct the base URi and fetch the resource.
         string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
-        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/ItemData?id={itemId}").Result;
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/ItemData?id={itemId}&includePrices=true").Result;
 
 
         if (response.StatusCode != System.Net.HttpStatusCode.OK) {

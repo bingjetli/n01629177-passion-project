@@ -50,7 +50,7 @@ namespace n01629177_passion_project.Models {
         Value = this.Value,
         ItemId = this.ItemId,
         ShopId = this.ShopId,
-
+        Attestations = this.Users.Count,
       };
     }
 
@@ -65,7 +65,15 @@ namespace n01629177_passion_project.Models {
     public int? ItemId { get; set; }
     public int? ShopId { get; set; }
 
+
+    //TO-SELF: This is here so we can pass the UserId in the POST request to make
+    //a new record.
     public string UserId { get; set; }
+
+
+    //TO-SELF: Why not just return a list of UserIDs?
+    //Probably not a good idea to make the user-ids public to the end users. Call it intuition.
+    public int Attestations { get; set; }
 
 
 

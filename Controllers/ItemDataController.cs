@@ -44,7 +44,10 @@ namespace n01629177_passion_project.Controllers {
     /// HTTP 404 (Not Found) otherwise.
     /// </returns>
     [ResponseType(typeof(ItemSerializable))]
-    public IHttpActionResult GetItem([FromUri] int id) {
+    public IHttpActionResult GetItem(
+        [FromUri] int id,
+        [FromUri] bool includePrices = false
+      ) {
       Item item = db.Items.Find(id);
 
 
@@ -53,7 +56,7 @@ namespace n01629177_passion_project.Controllers {
       }
 
 
-      return Ok(item.ToSerializable());
+      return Ok(item.ToSerializable(includePrices));
     }
 
 

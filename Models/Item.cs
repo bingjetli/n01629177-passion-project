@@ -28,34 +28,57 @@ namespace n01629177_passion_project.Models {
     public virtual ICollection<Price> Prices { get; set; }
 
 
-    public ItemSerializable ToSerializable() {
+    public ItemSerializable ToSerializable(bool is_deep = false) {
+      if (is_deep == true) {
+
+
+        //Serialize the item data as well as it's associated price collection data.
+        PriceSerializable most_attested_price = null;
+        int attestations = -1;
+        var item_prices = new List<PriceSerializable>();
+        foreach (var p in Prices) {
+          item_prices.Add(p.ToSerializable());
+
+
+          //Try to get the top price for this item.
+          if (p.Users.Count > attestations) {
+
+            attestations = p.Users.Count;
+            most_attested_price = p.ToSerializable();
+          }
+        }
+
+
+        return new ItemSerializable {
+          ItemId = this.ItemId,
+          Brand = this.Brand,
+          Name = this.Name,
+          Variant = this.Variant,
+
+          IsDeep = is_deep,
+          Prices = item_prices,
+          MostAttestedPrice = most_attested_price,
+          AttestationCount = attestations,
+        };
+      }
+
+
       return new ItemSerializable {
         ItemId = this.ItemId,
         Brand = this.Brand,
         Name = this.Name,
-        Variant = this.Variant
+        Variant = this.Variant,
+
+        IsDeep = is_deep,
+        Prices = null,
+        MostAttestedPrice = null,
+        AttestationCount = -1,
       };
     }
 
-
-    //Methods
-    //public ItemDto ToDto() {
-    //  return new ItemDto {
-    //    ItemVariant = ItemVariant,
-    //    ItemBrand = ItemBrand,
-    //    ItemName = ItemName,
-    //    ItemId = ItemId,
-    //  };
-    //}
   }
 
 
-  //public class ItemDto {
-  //  public string ItemBrand { get; set; }
-  //  public string ItemName { get; set; }
-  //  public string ItemVariant { get; set; }
-  //  public int ItemId { get; set; }
-  //}
 
 
   public class ItemSerializable {
@@ -63,6 +86,16 @@ namespace n01629177_passion_project.Models {
     public string Brand { get; set; }
     public string Name { get; set; }
     public string Variant { get; set; }
+
+
+    //Boolean property indicating whether or not this object is serialized with 
+    //or without iterating the Prices array. If `IsDeep` is true, then this
+    //object includes data from the `Prices` collection.
+    public bool IsDeep { get; set; }
+    public IEnumerable<PriceSerializable> Prices { get; set; }
+
+    public PriceSerializable MostAttestedPrice { get; set; }
+    public int AttestationCount { get; set; }
 
 
     public override string ToString() {
