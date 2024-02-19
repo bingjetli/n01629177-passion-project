@@ -39,6 +39,10 @@ namespace n01629177_passion_project.Controllers {
     /// Attempts to find and return a Serializable Item associated with the specified id.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includePrices">
+    /// A boolean flag indicating whether or not to include the list of prices
+    /// associated with this item.
+    /// </param>
     /// <returns>
     /// HTTP 200 (OK) with the ItemSerializable if an item is found.
     /// HTTP 404 (Not Found) otherwise.
@@ -129,6 +133,15 @@ namespace n01629177_passion_project.Controllers {
         item.Variant = updated.Variant;
       }
 
+      if (updated.PriceType.IsEmpty() == false) {
+        item.PriceType = updated.PriceType;
+      }
+
+
+      if (updated.DefaultQuantity > 0) {
+        item.DefaultQuantity = updated.DefaultQuantity;
+      }
+
 
       db.Entry(item).State = EntityState.Modified;
 
@@ -173,6 +186,8 @@ namespace n01629177_passion_project.Controllers {
         Brand = payload.Brand,
         Name = payload.Name,
         Variant = payload.Variant,
+        PriceType = payload.PriceType,
+        DefaultQuantity = payload.DefaultQuantity,
         Prices = new List<Price>(),
       };
 

@@ -281,6 +281,14 @@
     <Compile Include="Migrations\202402102133553_standardized-item-schema.designer.cs">
       <DependentUpon>202402102133553_standardized-item-schema.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202402191826238_price-table-add-fields-type-unitprice.cs" />
+    <Compile Include="Migrations\202402191826238_price-table-add-fields-type-unitprice.Designer.cs">
+      <DependentUpon>202402191826238_price-table-add-fields-type-unitprice.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202402191921217_item-table-add-fields-pricetype-defaultquantity.cs" />
+    <Compile Include="Migrations\202402191921217_item-table-add-fields-pricetype-defaultquantity.Designer.cs">
+      <DependentUpon>202402191921217_item-table-add-fields-pricetype-defaultquantity.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\BasePriceRecord.cs" />
@@ -460,6 +468,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202402102133553_standardized-item-schema.resx">
       <DependentUpon>202402102133553_standardized-item-schema.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402191826238_price-table-add-fields-type-unitprice.resx">
+      <DependentUpon>202402191826238_price-table-add-fields-type-unitprice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202402191921217_item-table-add-fields-pricetype-defaultquantity.resx">
+      <DependentUpon>202402191921217_item-table-add-fields-pricetype-defaultquantity.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

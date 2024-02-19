@@ -24,6 +24,15 @@ namespace n01629177_passion_project.Models {
     [StringLength(128, ErrorMessage = "Item variant names may only have a maximum of 128 characters.")]
     public string Variant { get; set; }
 
+    [Required]
+    [StringLength(16, ErrorMessage = "Item price types may only have a maximum of 16 characters.")]
+    public string PriceType { get; set; }
+
+
+    [Required]
+    public int DefaultQuantity { get; set; }
+
+
     //An Item can be associated with many Prices, but a Price can only correspond to 1 Item.
     public virtual ICollection<Price> Prices { get; set; }
 
@@ -54,6 +63,8 @@ namespace n01629177_passion_project.Models {
           Brand = this.Brand,
           Name = this.Name,
           Variant = this.Variant,
+          PriceType = this.PriceType,
+          DefaultQuantity = this.DefaultQuantity,
 
           IsDeep = is_deep,
           Prices = item_prices,
@@ -68,6 +79,8 @@ namespace n01629177_passion_project.Models {
         Brand = this.Brand,
         Name = this.Name,
         Variant = this.Variant,
+        PriceType = this.PriceType,
+        DefaultQuantity = this.DefaultQuantity,
 
         IsDeep = is_deep,
         Prices = null,
@@ -86,6 +99,12 @@ namespace n01629177_passion_project.Models {
     public string Brand { get; set; }
     public string Name { get; set; }
     public string Variant { get; set; }
+
+    //An item's price type can either be by "weight" or by individual "item"s.
+    //This value determines how the price values are interpreted when it's time
+    //to input and output the value.
+    public string PriceType { get; set; }
+    public int DefaultQuantity { get; set; }
 
 
     //Boolean property indicating whether or not this object is serialized with 

@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 1400-20240219 :
+ - item table now stores price type and default quantity
+ - other associated prices only renders if there are multiple prices for the item
+ - removed quantity and unit from the create price record page
+ - item now displays default quantity and unit in the details page
+
+
 ## 0000-20240218 :
  - implemented loading price data on the item details page
  - accordian list of selectable prices now visible on item details page

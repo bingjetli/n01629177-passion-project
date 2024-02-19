@@ -21,8 +21,22 @@ namespace n01629177_passion_project.Models {
     public DateTime LastAttestationDate { get; set; }
 
 
+    //Prices are stored as unit prices for the item that they are associated with.
+    //So depending on the item's price type, this value should get calculated to
+    //its appropriate value. See `devlog/handling-prices-item-weight.md`
     [Required]
     public float Value { get; set; }
+
+
+    //Deprecated.
+    //Store the unit price instead of the value. Then allow the user to choose
+    //weather or not to see the price by weight or price by unit. If the price
+    //is by weight, allow the user to set the weight and unit.
+    //public float UnitPrice { get; set; }
+
+    //Deprecated.
+    //Determines whether this Price record is for "weight" or and individual "item".
+    //public string Type { get; set; }
 
 
     //A BasePriceRecord must have 1 item; But an item can have many BasePriceRecords.
@@ -48,6 +62,8 @@ namespace n01629177_passion_project.Models {
         CreationDate = this.CreationDate,
         LastAttestationDate = this.LastAttestationDate,
         Value = this.Value,
+        //UnitPrice = this.UnitPrice,
+        //Type = this.Type,
         ItemId = this.ItemId,
         ShopId = this.ShopId,
         Attestations = this.Users.Count,
@@ -62,6 +78,8 @@ namespace n01629177_passion_project.Models {
     public DateTime CreationDate { get; set; } = DateTime.Now;
     public DateTime LastAttestationDate { get; set; } = DateTime.Now;
     public float? Value { get; set; }
+    //public float? UnitPrice { get; set; }
+    //public string Type { get; set; }
     public int? ItemId { get; set; }
     public int? ShopId { get; set; }
 

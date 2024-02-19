@@ -92,11 +92,38 @@ namespace n01629177_passion_project.Controllers {
           int item_id = item_id = int.Parse(form["itemId"]);
 
 
+
+          //Determine the price record type from the unit.
+          //string price_type;
+          //if (form["unit"] == "1") {
+          //  price_type = "weight";
+          //}
+          //else if (form["unit"] == "2") {
+          //  price_type = "item";
+          //}
+          //else {
+
+          //  //Abort if the provided unit value is invalid.
+          //  return Content($"Unknown unit value \"{form["unit"]}\" specified!");
+          //}
+
+          //Calculate the unit price
+          //float unit_price;
+          //float quantity = float.Parse(form["unitAmount"]);
+          //if (quantity <= 0) {
+
+          //  //Quantity values less than 1 are invalid.
+          //  return Content($"Invalid item quantity \"{form["unitAmount"]}\" specified!");
+          //}
+          //unit_price = float.Parse(form["price"]) / quantity;
+
           PriceSerializable price_payload = new PriceSerializable {
             ShopId = shop_id,
             UserId = user_id,
             ItemId = item_id,
             Value = float.Parse(form["price"]),
+            //UnitPrice = unit_price,
+            //Type = price_type,
           };
 
 

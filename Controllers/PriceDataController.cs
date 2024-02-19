@@ -57,8 +57,8 @@ namespace n01629177_passion_project.Controllers {
     /// Updates the specified Price object in the database. The PriceId of the 
     /// target Price object must be included in the PriceSerializable parameter.
     /// 
-    /// Only the following fields can be updated : LastAttestationDate, Value,
-    /// ItemId, and ShopId.
+    /// Only the following fields can be updated : LastAttestationDate, UnitPrice,
+    /// Type, ItemId, and ShopId.
     /// </summary>
     /// <param name="updated">
     /// A PriceSerializable object containing the id of the Price to update
@@ -85,6 +85,16 @@ namespace n01629177_passion_project.Controllers {
       if (updated.Value != null) {
         price.Value = (float)updated.Value;
       }
+
+      //if (updated.UnitPrice != null) {
+      //  price.UnitPrice = (float)updated.UnitPrice;
+      //}
+
+
+      //if (updated.Type != null) {
+      //  price.Type = updated.Type;
+      //}
+
 
       if (updated.ItemId != null) {
 
@@ -184,6 +194,16 @@ namespace n01629177_passion_project.Controllers {
       Shop shop = db.Shops.Find(payload.ShopId);
       if (shop == null) return BadRequest($"The specified ShopId {payload.ItemId} does not exist.");
 
+      //Validate other parts of the payload.
+
+      //As of 2024-02-19, there are only 2 valid values for this field, we store
+      //price either by weight or by individual item cost.
+      //if (payload.Type != "weight" || payload.Type != "item") return BadRequest($"Invalid Type specified: {payload.Type}");
+
+
+      //Negative unit prices are invalid.
+      //if (payload.UnitPrice < 0) return BadRequest($"The unit price is invalid : {payload.UnitPrice}");
+
 
       //Then initialize the new Price object.
       Price new_price = new Price {
@@ -191,6 +211,8 @@ namespace n01629177_passion_project.Controllers {
         CreationDate = DateTime.Now,
         LastAttestationDate = DateTime.Now,
         Value = (float)payload.Value,
+        //UnitPrice = (float)payload.UnitPrice,
+        //Type = payload.Type,
         ItemId = (int)payload.ItemId,
         Item = item,
         ShopId = (int)payload.ShopId,

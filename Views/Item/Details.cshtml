@@ -1,26 +1,30 @@
 ﻿@model n01629177_passion_project.Models.ItemSerializable
 
 @{
-    ViewBag.Title = Model.Brand + " " + @Model.Name + " " + @Model.Variant;
+  ViewBag.Title = Model.Brand + " " + @Model.Name + " " + @Model.Variant;
 }
 
 <div class="text-muted text-uppercase pt-4">@Model.Brand</div>
-<h2 class="text-capitalize pb-4">
+<h2 class="text-capitalize">
   @Model.Name - @Model.Variant
 </h2>
+<div class="mb-4">
+  @Model.DefaultQuantity@(Model.PriceType == "weight" ? " g" : "x")
+</div>
 
 <section class="row">
   <div class="col-sm-8">
 
     <h3>Price Data</h3>
-    @if(Model.IsDeep == true) {
-        if(Model.MostAttestedPrice != null) {
-          <h2 class="display-3 text-success">$ @Model.MostAttestedPrice.Value</h2>
-        }
-        else {
-          <h2 class="display-3 text-secondary">No Price Data Yet</h2>
-        }
+    @if (Model.IsDeep == true) {
+      if (Model.MostAttestedPrice != null) {
+        <h2 class="display-3 text-success">$ @Model.MostAttestedPrice.Value</h2>
+      }
+      else {
+        <h2 class="display-3 text-secondary">No Price Data Yet</h2>
+      }
 
+      if (Model.Prices.Count() > 1) {
         <div id="other-prices-accordion-box" class="accordion">
           <div class="accordion-item">
             <h4 class="accordion-header">
@@ -31,16 +35,16 @@
             <div id="other-prices-content-box" class="accordion-collapse collapse" data-bs-parent="#other-prices-accordion-box">
               <div class="accordion-body">
                 <ul class="list-group list-group-flush">
-                  @foreach(var p in Model.Prices) {
-                      <li class="d-flex justify-content-between list-group-item @(p.PriceId == Model.MostAttestedPrice.PriceId ? "active" : "")">
-                        <span>
-                          $ @p.Value
-                        </span>
-                        <span>
-                          @p.Attestations attestations
-                        </span>
-                      </li>
-                   }
+                  @foreach (var p in Model.Prices) {
+                    <li class="d-flex justify-content-between list-group-item @(p.PriceId == Model.MostAttestedPrice.PriceId ? "active" : "")">
+                      <span>
+                        $ @p.Value
+                      </span>
+                      <span>
+                        @p.Attestations attestations
+                      </span>
+                    </li>
+                  }
                 </ul>
               </div>
             </div>
@@ -48,6 +52,7 @@
 
         </div>
       }
+    }
     <a class="btn btn-link" href="/Price/CreateInput?itemId=@Model.ItemId">Create a new Price Entry</a>
 
   </div>
