@@ -12,6 +12,13 @@
   @Model.DefaultQuantity@(Model.PriceType == "weight" ? " g" : "x")
 </div>
 
+<div id="item-metadata" class="visually-hidden">
+  <span class="item-brand">@Model.Brand</span>
+  <span class="item-name">@Model.Name</span>
+  <span class="item-variant">@Model.Variant</span>
+  <span class="item-id">@Model.ItemId</span>
+</div>
+
 <section class="row">
   <div class="col-sm-8">
 
@@ -34,18 +41,30 @@
             </h4>
             <div id="other-prices-content-box" class="accordion-collapse collapse" data-bs-parent="#other-prices-accordion-box">
               <div class="accordion-body">
-                <ul class="list-group list-group-flush">
-                  @foreach (var p in Model.Prices) {
-                    <li class="d-flex justify-content-between list-group-item @(p.PriceId == Model.MostAttestedPrice.PriceId ? "active" : "")">
-                      <span>
-                        $ @p.Value
-                      </span>
-                      <span>
-                        @p.Attestations attestations
-                      </span>
-                    </li>
+                <div id="listgroup-prices" class="list-group list-group-flush">
+                  @{var ordered_prices =  Model.Prices.OrderByDescending(p => p.LastAttestationDate);}
+                  @foreach (var p in ordered_prices) {
+
+                    <button id="price-@p.PriceId" 
+                            class="list-group-item list-group-item-action @(p.PriceId == Model.MostAttestedPrice.PriceId ? "active" : "")" data-bs-toggle="list">
+
+                      <div class="d-flex justify-content-between">
+                        <span>
+                          $ @p.Value
+                        </span>
+                        <span>
+                          @p.Attestations attestations
+                        </span>
+                      </div>
+
+                      <div class="visually-hidden">
+                        <span class="price-value">@p.Value</span>
+                        <span class="price-id">@p.PriceId</span>
+                      </div>
+
+                    </button>
                   }
-                </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -69,4 +88,132 @@
 </section>
 
 
+<section class="row mt-5">
+  <div class="col-sm-8">
+    <div class="form-floating mt-2">
+      <input id="item-quantity"
+             name="quantity"
+             class="form-control"
+             type="number"
+             value="1"
+             min="1"
+             max="100"
+             placeholder="1"/>
+      <label for="item-quantity">Quantity</label>
+    </div>
+  </div>
+</section>
 
+
+<section class="row mt-5">
+  <div class="col-sm-8 d-flex flex-row justify-content-between gx-1">
+    <button id="button-add-to-shopping" class="btn btn-primary">Add to Shopping List</button>
+    <button id="button-add-to-planned" class="btn btn-secondary">Add to planned List</button>
+  </div>
+</section>
+
+
+<script>
+  //`document.querySelector("#listgroup-prices > .active")`
+  //can be used to obtain the currently selected element.
+  document.querySelector("#button-add-to-shopping").onclick = _ => {
+
+    const shopping_list_stored_string = sessionStorage.getItem("shopping-list");
+    let shopping_list = [];
+    if (shopping_list_stored_string !== null) {
+
+      //The list exists and now we need to convert it into an object from the 
+      //string value.
+      shopping_list = JSON.parse(shopping_list_stored_string);
+    }
+
+
+    //Now update the list.
+    const selected_price = document.querySelector("#listgroup-prices > .active");
+    const selected_price_id = selected_price.id;
+    const new_item = {
+      item: {
+        id: document.querySelector("#item-metadata .item-id").textContent,
+        brand: document.querySelector("#item-metadata .item-brand").textContent,
+        name: document.querySelector("#item-metadata .item-name").textContent,
+        variant: document.querySelector("#item-metadata .item-variant").textContent,
+      },
+      itemQuantity: document.querySelector("#item-quantity").value,
+      price: {
+        id: document.querySelector(`#${selected_price_id} .price-id`).textContent,
+        value: document.querySelector(`#${selected_price_id} .price-value`).textContent,
+      },
+    };
+
+
+    shopping_list.push(new_item);
+
+
+    //Save the item into session storage.
+    sessionStorage.setItem("shopping_list", JSON.stringify(shopping_list));
+
+    //A temporary key in session storage to notify the user that an item has been
+    //added to the planned list. This should be cleared after the toast notification
+    //is shown.
+    sessionStorage.setItem("recently-added", JSON.stringify({
+      addedTo: "shopping",
+      timestamp: Date.now(),
+      data: new_item,
+    }));
+
+
+    //Navigate the user to the reattestation endpoint.
+    window.location.href = `/Price/Reattest?priceId=${new_item.price.id}`;
+
+  };
+
+
+  document.querySelector("#button-add-to-planned").onclick = _ => {
+    const planned_list_stored_string = sessionStorage.getItem("planned-list");
+    let planned_list = [];
+    if (planned_list_stored_string !== null) {
+
+      //The list exists and now we need to convert it into an object from the 
+      //string value.
+      planned_list = JSON.parse(planned_list_stored_string);
+    }
+
+
+    //Now update the list.
+    const selected_price = document.querySelector("#listgroup-prices > .active");
+    const selected_price_id = selected_price.id;
+    const new_item = {
+      item: {
+        id: document.querySelector("#item-metadata .item-id").textContent,
+        brand: document.querySelector("#item-metadata .item-brand").textContent,
+        name: document.querySelector("#item-metadata .item-name").textContent,
+        variant: document.querySelector("#item-metadata .item-variant").textContent,
+      },
+      itemQuantity: document.querySelector("#item-quantity").value,
+      price: {
+        id: document.querySelector(`#${selected_price_id} .price-id`).textContent,
+        value: document.querySelector(`#${selected_price_id} .price-value`).textContent,
+      },
+    };
+
+
+    planned_list.push(new_item);
+
+
+    //Save the item into session storage.
+    sessionStorage.setItem("planned-list", JSON.stringify(planned_list));
+
+    //A temporary key in session storage to notify the user that an item has been
+    //added to the planned list. This should be cleared after the toast notification
+    //is shown.
+    sessionStorage.setItem("recently-added", JSON.stringify({
+      addedTo: "planned",
+      timestamp: Date.now(),
+      data: new_item,
+    }));
+
+
+    //Navigate the user to the reattestation endpoint.
+    window.location.href = `/Price/Reattest?priceId=${new_item.price.id}`;
+  };
+</script>

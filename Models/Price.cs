@@ -76,7 +76,7 @@ namespace n01629177_passion_project.Models {
   public class PriceSerializable {
     public int PriceId { get; set; }
     public DateTime CreationDate { get; set; } = DateTime.Now;
-    public DateTime LastAttestationDate { get; set; } = DateTime.Now;
+    public DateTime LastAttestationDate { get; set; } = DateTime.MinValue;
     public float? Value { get; set; }
     //public float? UnitPrice { get; set; }
     //public string Type { get; set; }
@@ -87,6 +87,12 @@ namespace n01629177_passion_project.Models {
     //TO-SELF: This is here so we can pass the UserId in the POST request to make
     //a new record.
     public string UserId { get; set; }
+
+    //SELF: A boolean flag for PUT requests, when enabled, it indicates that we
+    //want to update a user's attestation to this price record. This means removing
+    //this user's existing attestations to a price record of the same itemId &
+    //shopId, before adding their attestation to this price record.
+    public bool Reattest { get; set; } = false;
 
 
     //TO-SELF: Why not just return a list of UserIDs?

@@ -92,30 +92,13 @@ namespace n01629177_passion_project.Controllers {
           int item_id = item_id = int.Parse(form["itemId"]);
 
 
+          //First check if this user_id is already associated with an existing 
+          //price record for the same item and shop id. If it is, we need to
+          //remove their attestation from that record before creating this new one.
 
-          //Determine the price record type from the unit.
-          //string price_type;
-          //if (form["unit"] == "1") {
-          //  price_type = "weight";
-          //}
-          //else if (form["unit"] == "2") {
-          //  price_type = "item";
-          //}
-          //else {
 
-          //  //Abort if the provided unit value is invalid.
-          //  return Content($"Unknown unit value \"{form["unit"]}\" specified!");
-          //}
 
-          //Calculate the unit price
-          //float unit_price;
-          //float quantity = float.Parse(form["unitAmount"]);
-          //if (quantity <= 0) {
 
-          //  //Quantity values less than 1 are invalid.
-          //  return Content($"Invalid item quantity \"{form["unitAmount"]}\" specified!");
-          //}
-          //unit_price = float.Parse(form["price"]) / quantity;
 
           PriceSerializable price_payload = new PriceSerializable {
             ShopId = shop_id,
@@ -140,6 +123,33 @@ namespace n01629177_passion_project.Controllers {
       }
       catch (Exception e) {
         return Content(e.Message);
+      }
+    }
+
+
+
+    // GET: Price/Reattest?priceId={PRICE_ID}
+    [HttpGet]
+    public ActionResult Reattest([System.Web.Http.FromUri] int priceId) {
+
+      using (var http_client = new HttpClient()) {
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+
+        PriceSerializable updated_price = new PriceSerializable {
+          PriceId = priceId,
+          UserId = User.Identity.GetUserId(),
+          Reattest = true,
+        };
+
+        HttpResponseMessage response = http_client.PutAsync($"{base_uri}/api/PriceData", updated_price.ToHttpContent()).Result;
+        if (response.StatusCode == System.Net.HttpStatusCode.NoContent) {
+
+          //Redirect to the home page if the status code indicates a successful update.
+          return RedirectToAction("Index", "Home");
+        }
+        else {
+          return Content(response.StatusCode.ToString());
+        }
       }
     }
 

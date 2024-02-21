@@ -1,4 +1,5 @@
-﻿using n01629177_passion_project.Models;
+﻿using Microsoft.AspNet.Identity;
+using n01629177_passion_project.Models;
 using n01629177_passion_project.Models.ViewModels;
 using System;
 using System.Collections.Generic;

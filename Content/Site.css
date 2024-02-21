@@ -18,3 +18,8 @@ select,
 textarea {
     max-width: 280px;
 }
+
+
+#toast-box {
+  z-index: 10;
+}

@@ -25,7 +25,7 @@ namespace n01629177_passion_project.Models {
     public float Longitude { get; set; }
 
     [Required]
-    [StringLength(128, MinimumLength = 6, ErrorMessage = "Shop names must be between 6 to 128 characters in length.")]
+    [StringLength(128, MinimumLength = 3, ErrorMessage = "Shop names must be between 3 to 128 characters in length.")]
     public string Name { get; set; }
 
     [StringLength(128, ErrorMessage = "Shop addresses can be a maximum of 128 characters in length.")]

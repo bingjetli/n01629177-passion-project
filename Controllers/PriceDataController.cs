@@ -50,6 +50,40 @@ namespace n01629177_passion_project.Controllers {
     }
 
 
+    [HttpGet]
+    [ResponseType(typeof(PriceSerializable))]
+    public IHttpActionResult FindExistingPriceByUserId(
+      [FromUri] string userId,
+      [FromUri] int shopId,
+      [FromUri] int itemId
+    ) {
+
+      //TODO: This should be done in the create route, to avoid making multiple
+      //HTTP Calls.
+
+      //SELF: I wonder if it makes a difference to search for all the items a 
+      //user has attested to first, or start with the specific item and shop id?
+      ApplicationUser user = db.Users.Find(userId);
+      if (user == null) {
+
+        //If the userId doesn't exist in the database, then this is a bad request
+        //since users require an account to create an item price record.
+        return BadRequest($"The specified user id {userId} is invalid.");
+      }
+
+
+      //For a single item & shop, a user should only have at most 1 attestation.
+      //TODO: Error handling if multiple attestations are found.
+      Price price_attestation = user.PriceAttestations.Where(p => (p.ItemId == itemId && p.ShopId == shopId)).SingleOrDefault();
+      if (price_attestation == null) {
+        return NotFound();
+      }
+
+
+      return Ok(price_attestation.ToSerializable());
+    }
+
+
 
 
     // PUT: api/PriceData/5
@@ -59,6 +93,11 @@ namespace n01629177_passion_project.Controllers {
     /// 
     /// Only the following fields can be updated : LastAttestationDate, UnitPrice,
     /// Type, ItemId, and ShopId.
+    /// 
+    /// Specifying `Reattest = true` along with a valid `UserId` will remove the
+    /// user's attestation from existing price records for the same item & shop
+    /// before adding the user's attestation to this current price record.
+    /// 
     /// </summary>
     /// <param name="updated">
     /// A PriceSerializable object containing the id of the Price to update
@@ -77,8 +116,16 @@ namespace n01629177_passion_project.Controllers {
 
       //Fetch the corresponding entry to be updated.
       Price price = db.Prices.Find(updated.PriceId);
+      if (price == null) {
+        return BadRequest($"The specified priceId {updated.PriceId} does not exist.");
+      }
 
-      if (updated.LastAttestationDate != null) {
+      //SELF: There's a bug here with DateTime.MinValue, I suspect it might be due to
+      //timezone issues. DateTime.MinValue doesn't seem like a reliable way to detect
+      //the default value.
+      if (updated.LastAttestationDate != null && updated.LastAttestationDate != DateTime.MinValue) {
+
+        //If the new LastAttestationDate is not the default value.
         price.LastAttestationDate = updated.LastAttestationDate;
       }
 
@@ -107,15 +154,27 @@ namespace n01629177_passion_project.Controllers {
         }
 
 
-        //Then remove the previous reference to this Price object from the old
-        //associated Item.
-        price.Item.Prices.Remove(price);
+        if (updated.ItemId != price.ItemId) {
+
+          //SELF: Come to think of it, we probably don't even need this validation
+          //since the price record should already have a valid item Id. 
+          //TODO: Revert this.
+          //Only make changes if the new itemId is different, we still want to
+          //keep the itemId validation for the reattestation step if it is enabled.
 
 
-        //Add this Price into the new Item's price list and update the relationship.
-        item.Prices.Add(price);
-        price.Item = item;
-        price.ItemId = item.ItemId;
+          //Then remove the previous reference to this Price object from the old
+          //associated Item.
+          price.Item.Prices.Remove(price);
+
+
+          //Add this Price into the new Item's price list and update the relationship.
+          item.Prices.Add(price);
+          price.Item = item;
+          price.ItemId = item.ItemId;
+
+        }
+
       }
 
 
@@ -130,15 +189,66 @@ namespace n01629177_passion_project.Controllers {
         }
 
 
-        //Then remove the previous reference to this Price object from the old
-        //associated Shop.
-        price.Shop.Prices.Remove(price);
+        if (updated.ShopId != price.ShopId) {
+
+          //SELF: Come to think of it, we probably don't even need this validation
+          //since the price record should already have a valid shop Id. 
+          //TODO: Revert this.
+          //Only make changes if the new shopId is different, we still want to
+          //keep the shopId validation for the reattestation step if it is enabled.
 
 
-        //Add this Price into the new Shop's price list and update the relationship.
-        shop.Prices.Add(price);
-        price.Shop = shop;
-        price.ShopId = shop.ShopId;
+          //Then remove the previous reference to this Price object from the old
+          //associated Shop.
+          price.Shop.Prices.Remove(price);
+
+
+          //Add this Price into the new Shop's price list and update the relationship.
+          shop.Prices.Add(price);
+          price.Shop = shop;
+          price.ShopId = shop.ShopId;
+        }
+
+      }
+
+
+      if (updated.Reattest == true) {
+
+        //Indicates that the user wishes to make an attestation to this price record.
+
+        if (updated.UserId == null) {
+          return BadRequest($"A userId must be supplied with this request if the Reattest option is enabled.");
+        }
+
+
+        ApplicationUser user = db.Users.Find(updated.UserId);
+        if (user == null) {
+          return BadRequest($"The supplied userId {updated.UserId} is invalid.");
+        }
+
+
+        //SELF: I wonder if this might cause any bugs by using `price.ItemId`
+        //and `price.ShopId` to check instead of the `updated` values. Maybe
+        //we might encounter a bug where `price` is still referencing an old
+        //item or shop since changes haven't been commited to the database yet.
+        Price existing_attestation = user.PriceAttestations.Where(p => (p.ItemId == price.ItemId && p.ShopId == price.ShopId)).SingleOrDefault();
+        if (existing_attestation != null) {
+
+          //This means the user already has an existing attestation, so now we can
+          //remove this user's attestation from it first before we add the new price.
+          existing_attestation.Users.Remove(user);
+        }
+
+
+        //Now reattest this user to this price record if they aren't already in
+        //the list.
+        if (price.Users.Contains(user) == false) {
+          price.Users.Add(user);
+        }
+
+
+        //Then update the last time this price record was attested.
+        price.LastAttestationDate = DateTime.Now;
       }
 
 
@@ -160,6 +270,7 @@ namespace n01629177_passion_project.Controllers {
 
       return StatusCode(HttpStatusCode.NoContent);
     }
+
 
 
 
@@ -192,7 +303,18 @@ namespace n01629177_passion_project.Controllers {
       if (item == null) return BadRequest($"The specified ItemId {payload.ItemId} does not exist.");
 
       Shop shop = db.Shops.Find(payload.ShopId);
-      if (shop == null) return BadRequest($"The specified ShopId {payload.ItemId} does not exist.");
+      if (shop == null) return BadRequest($"The specified ShopId {payload.ShopId} does not exist.");
+
+
+      //For a single item & shop, a user should only have at most 1 attestation.
+      Price existing_attestation = user.PriceAttestations.Where(p => (p.ItemId == payload.ItemId && p.ShopId == payload.ShopId)).SingleOrDefault();
+      if (existing_attestation != null) {
+
+        //This means the user already has an existing attestation, so now we can
+        //remove this user's attestation from it first before we add the new price.
+        existing_attestation.Users.Remove(user);
+      }
+
 
       //Validate other parts of the payload.
 

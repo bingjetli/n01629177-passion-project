@@ -1,6 +1,14 @@
 # Changelog
 
 
+## 2359-20240220 :
+ - Users can no longer attest to multiple prices of the same item.
+ - There is now an option to set item quantity in the details page.
+ - Toast notifications are now added to indicate when an item has been added to a list.
+ - Users can now add items to a shopping list or a planning list.
+ - Alternate prices can now be selected and the user will automatically attest to these prices when an item is added to a list.
+
+
 ## 1400-20240219 :
  - item table now stores price type and default quantity
  - other associated prices only renders if there are multiple prices for the item

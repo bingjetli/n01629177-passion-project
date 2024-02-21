@@ -47,3 +47,90 @@
              value="Search For Item" />
     </form>
 </main>
+
+
+
+<script>
+
+  document.onreadystatechange = _ => {
+    if (document.readyState === "complete") {
+
+      //Access the session storage to display any toast notifications that are pending.
+      const recently_added_stored_value = sessionStorage.getItem("recently-added");
+      if (recently_added_stored_value !== null) {
+
+        //There's something that was recently added and we've been redirected back
+        //to the main page.
+
+        const recently_added = JSON.parse(recently_added_stored_value);
+
+
+        const toast_box = document.querySelector("#toast-box");
+        const live_toast = document.createElement("div");
+        live_toast.classList.add("toast");
+        live_toast.setAttribute("role", "alert");
+        live_toast.setAttribute("aria-live", "assertive");
+        live_toast.setAttribute("aria-atomic", "true");
+
+
+        const toast_body = document.createElement("div");
+        toast_body.classList.add("toast-body");
+        toast_body.textContent = `${recently_added.data.itemQuantity}x ${recently_added.data.item.brand} ${recently_added.data.item.name} ${recently_added.data.item.variant}`;
+
+
+        const toast_header = document.createElement("div");
+        toast_header.classList.add("toast-header");
+
+
+        const toast_header_title = document.createElement("strong");
+        toast_header_title.classList.add("me-auto");
+        toast_header_title.textContent = `Added Item to ${recently_added.addedTo} list`;
+
+
+        const toast_header_timestamp = document.createElement("small");
+        toast_header_timestamp.textContent = `${toTimeString(Date.now() - recently_added.timestamp)} ago`;
+
+
+        const toast_dismiss_button = document.createElement("button");
+        toast_dismiss_button.setAttribute("type", "button");
+        toast_dismiss_button.setAttribute("data-bs-dismiss", "toast");
+        toast_dismiss_button.setAttribute("aria-label", "Close");
+        toast_dismiss_button.classList.add("btn-close");
+
+        //Render toast.
+        toast_header.append(
+          toast_header_title,
+          toast_header_timestamp,
+          toast_dismiss_button,
+        );
+        live_toast.append(toast_header, toast_body);
+        toast_box.replaceChildren(live_toast);
+        new bootstrap.Toast(live_toast).show();
+
+        //Clear the recently added session storage key after showing the toast.
+        sessionStorage.removeItem("recently-added");
+      }
+
+    }
+  };
+
+
+  function toTimeString(unix_timestamp) {
+
+    if (unix_timestamp < 60000) {
+
+      //It's been less than 60 seconds
+      return `${Math.floor(unix_timestamp / 1000)} second(s)`;
+    }
+    else if (unix_timestamp < 3600000) {
+
+      //It's been less than 60 minutes
+      return `${Math.floor((unix_timestamp / 1000) / 60)} minute(s)`;
+    }
+    else {
+
+      //It's been more than 60 minutes, we start counting hours from this point.
+      return `${Math.floor(((unix_timestamp / 1000) / 60) / 60)} hour(s)`;
+    }
+  }
+</script>
