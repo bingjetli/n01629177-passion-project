@@ -21,6 +21,7 @@
           <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
           <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
           <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+          <li>@Html.ActionLink("Shopping List", "ShoppingList", "Home", new { area = "" }, new { @class = "nav-link" })</li>
         </ul>
         @Html.Partial("_LoginPartial")
       </div>
@@ -36,6 +37,34 @@
   <div id="toast-box" class="position-fixed bottom-0 end-0 p-3">
 
   </div>
+
+
+  <script>
+    //Global JavaScript helper functions
+    function htmlElementFromString(html_string) {
+      return new DOMParser().parseFromString(html_string, "text/html").body.firstChild;
+    }
+
+
+    //Returns null if the input array is empty or deleting an element will
+    //result in an empty array. Otherwise returns a new array with the element
+    //at the specified index missing.
+    function deleteElementFromArrayByIndex(array, index) {
+      if (array.length <= 1) {
+        return null;
+      }
+
+      const new_array = [];
+      for (let i = 0; i < array.length; i++) {
+        if (i !== index) {
+          new_array.push(array[i]);
+        }
+      }
+
+
+      return new_array;
+    }
+  </script>
 
   @Scripts.Render("~/bundles/jquery")
   @Scripts.Render("~/bundles/bootstrap")

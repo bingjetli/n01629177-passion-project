@@ -1,5 +1,12 @@
 # Changelog
 
+## 2243-20240221 :
+ - Shopping list functionality implemented
+ - Items can be removed from the shopping list
+ - Changing the item quantity in the shopping list recalculates the total
+ - System now handles items with only 1 price correctly
+ - Create item user flow implemented
+
 
 ## 2359-20240220 :
  - Users can no longer attest to multiple prices of the same item.

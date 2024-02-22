@@ -1,0 +1,168 @@
+﻿
+@{
+  ViewBag.Title = "Shopping List";
+}
+
+<h2>Shopping List</h2>
+
+<form id="item-search-form" action="/Item/Search" method="get"></form>
+
+<div class="row mt-5">
+  <div class="col-sm-8">
+
+    <div class="input-group">
+
+      <div class="form-floating w-auto">
+        <input type="search" class="form-control" id="searchbox-input" placeholder="search term" form="item-search-form">
+        <label class="" for="searchbox-input">Add items to the Shopping List</label>
+      </div>
+
+      <button class="btn btn-primary flex-grow-1" form="item-search-form" type="submit">Search</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="main-content" class="row mt-5">
+  <div id="shopping-list-box" class="list-group">
+
+  </div>
+</div>
+
+<div class="row my-4">
+  <div class="col-sm-8">
+    <div id="total-price-box" class="d-flex flex-row-reverse"></div>
+  </div>
+</div>
+
+
+
+<script>
+
+  document.onreadystatechange = _ => {
+
+    if (document.readyState === "complete") {
+
+      function renderShoppingList() {
+
+
+        const shopping_list_box = document.querySelector("#shopping-list-box");
+        shopping_list_box.replaceChildren();
+
+        const total_price_box = document.querySelector("#total-price-box");
+        total_price_box.replaceChildren();
+
+
+        //Try to load the shopping list content from the session storage.
+        const shopping_list_string_value = sessionStorage.getItem("shopping-list");
+        if (shopping_list_string_value === null) {
+
+          //There is nothing stored in the session storage shopping list.
+
+          const empty_list_message = document.createElement("p");
+          empty_list_message.textContent = "There is nothing in the shopping list";
+          empty_list_message.classList.add("fs-1", "fw-bold", "text-secondary");
+
+
+          shopping_list_box.append(empty_list_message);
+        }
+        else {
+
+          //There are items in the shopping list.
+          let total_price = 0;
+          const shopping_list = JSON.parse(shopping_list_string_value);
+          shopping_list.forEach((i, index) => {
+            total_price += Number(i.price.value * i.itemQuantity);
+
+            shopping_list_box.append(htmlElementFromString(`
+              <div id="item-${index}" class="list-group-item shopping-list-item">
+                <div class="d-flex justify-content-between">
+                  <span class="text-uppercase text-secondary">
+                    ${i.item.brand}
+                  </span>
+                  <button type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+
+                <div>
+                  <h5>${i.item.name} ${i.item.variant}</h5>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                  <div class="form-floating">
+                      <input type="number" value="${i.itemQuantity}" class="form-control item-quantity-input" min="1" max="100">
+                      <label for="item-quantity-input">Quantity</label>
+                  </div>
+                  <div class="fs-3 fw-bold text-success">
+                    $${Number(i.price.value * i.itemQuantity).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            `));
+
+          });
+
+          total_price_box.append(htmlElementFromString(`
+            <div>
+              <span class="text-secondary me-2">TOTAL:</span>
+              <span class="text-success fw-bold fs-1">$${total_price.toFixed(2)}</span>
+            </div>
+          `));
+
+        }
+
+
+        document.querySelectorAll(".list-group-item .btn-close").forEach(b => {
+          b.onclick = e => {
+
+
+            //Get the parent item index from the event target.
+            const item = e.currentTarget.parentNode.parentNode;
+            const item_index = Number(item.id.split("-")[1]);
+
+
+            let shopping_list = [];
+            const shopping_list_string_value = sessionStorage.getItem("shopping-list");
+            if(shopping_list != null) shopping_list = JSON.parse(shopping_list_string_value);
+
+
+            //Update the session storage.
+            const result = deleteElementFromArrayByIndex(shopping_list, item_index);
+            if (result === null) {
+              sessionStorage.removeItem("shopping-list");
+            }
+            else {
+              sessionStorage.setItem("shopping-list", JSON.stringify(result));
+            }
+
+            
+            //And re-render the list.
+            renderShoppingList();
+          };
+        });
+
+
+        document.querySelectorAll(".item-quantity-input").forEach(ip => {
+          ip.onchange = e => {
+
+            const item_index = Number(ip.parentNode.parentNode.parentNode.id.split("-")[1]);
+
+            let shopping_list = [];
+            const shopping_list_string_value = sessionStorage.getItem("shopping-list");
+            if(shopping_list != null) shopping_list = JSON.parse(shopping_list_string_value);
+            
+            shopping_list[item_index].itemQuantity = ip.value;
+            sessionStorage.setItem("shopping-list", JSON.stringify(shopping_list));
+
+
+            renderShoppingList();
+          };
+        });
+      }
+
+
+      //Initial call to render the list.
+      renderShoppingList();
+
+    }
+  };
+</script>

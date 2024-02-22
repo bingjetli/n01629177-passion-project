@@ -21,5 +21,15 @@ namespace n01629177_passion_project.Controllers {
 
       return View();
     }
+
+
+    public ActionResult ShoppingList() {
+      return View();
+    }
+
+
+    public ActionResult PlannedList() {
+      return View();
+    }
   }
 }

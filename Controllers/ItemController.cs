@@ -41,8 +41,30 @@ namespace n01629177_passion_project.Controllers {
 
 
     // GET: Item/Create
-    public ActionResult Create() {
+    public ActionResult CreateInput() {
       return View();
+    }
+
+
+    [HttpPost]
+    public ActionResult CreateProcess(ItemSerializable payload) {
+
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+        HttpResponseMessage response = http_client.PostAsync($"{base_uri}/api/ItemData", payload.ToHttpContent()).Result;
+
+
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+          return Content(response.Content.ToString());
+        }
+
+
+
+        return Redirect($"/Item/Details?itemId={response.Content.ReadAsAsync<ItemSerializable>().Result.ItemId}");
+      }
+
     }
 
 
@@ -52,6 +74,11 @@ namespace n01629177_passion_project.Controllers {
     //Unable to use the `using` keyword for `.FromUri` since that contains 
     //definitions for the annotations of the Http Verbs as well.
     public ActionResult Search([System.Web.Http.FromUri] string query) {
+
+      //Redirect the user back to the home page if the search query is invalid.
+      if (query == null || query.Length < 3) {
+        return RedirectToAction("Index", "Home");
+      }
 
       //The `using` keyword allows automatic disposal of resources.
       //This is similar to the `with` keyword in Python.

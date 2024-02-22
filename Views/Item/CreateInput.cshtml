@@ -1,0 +1,78 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create a new Item</h1>
+
+
+<form id="create-item-form" method="post" action="/Item/CreateProcess"></form>
+
+
+<div class="row">
+  <div class="col-sm-8">
+
+    <div class="form-floating mt-2">
+      <input id="item-brand-input"
+             name="brand"
+             class="form-control"
+             type="text"
+             placeholder="Brand Name Placeholder"
+             form="create-item-form" />
+      <label for="item-brand-input">Brand</label>
+    </div>
+
+    <div class="form-floating mt-2">
+      <input id="item-name-input"
+             name="name"
+             class="form-control"
+             type="text"
+             placeholder="Item Name Placeholder"
+             form="create-item-form" />
+      <label for="item-name-input">Name</label>
+    </div>
+
+    <div class="form-floating mt-2">
+      <input id="item-variant-input"
+             name="variant"
+             class="form-control"
+             type="text"
+             placeholder="Variant Name Placeholder"
+             form="create-item-form" />
+      <label for="item-variant-input">Variant</label>
+    </div>
+
+
+
+
+    <div class="btn-group mt-4" role="group" aria-label="Price Type Button Group">
+      <input form="create-item-form" type="radio" class="btn-check" name="priceType" value="weight" id="weight-price-type-radio" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="weight-price-type-radio">Sold by Weight (grams)</label>
+
+      <input form="create-item-form" type="radio" class="btn-check" name="priceType" value="item" id="item-price-type-radio" autocomplete="off">
+      <label class="btn btn-outline-primary" for="item-price-type-radio">Sold by Individual Items</label>
+    </div>
+
+
+    <div class="form-floating mt-2">
+      <input id="item-default-quantity-input"
+             name="defaultQuantity"
+             class="form-control"
+             type="number"
+             min="1"
+             placeholder="Default Quantity Placeholder"
+             form="create-item-form" />
+      <label for="item-default-quantity-input">Default Quantity</label>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="row mt-5 py-3 border-top">
+  <div class="col-sm-8">
+    <div class="d-flex">
+      <input class="btn btn-primary me-2" type="submit" form="create-item-form" value="Create Item" />
+      <a href="/" class="btn btn-secondary">Go back to homepage</a>
+    </div>
+  </div>
+</div>
