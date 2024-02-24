@@ -1,3 +1,9 @@
+# Readme Content Updates
+
+As mentioned in the video, I'll be explaining a bit more some of the things I 
+briefly touched on here in the GitHub. A full update should be available by 6PM
+on the 24th of February.
+
 # Changelog
 
 ## 2243-20240221 :
