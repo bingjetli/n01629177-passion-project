@@ -1,0 +1,41 @@
+﻿@model IEnumerable<n01629177_passion_project.Models.ItemSerializable>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="mb-2">Items</h1>
+
+<div class="row mb-5">
+  <div class="col-sm-8">
+    <a href="/Item/CreateInput" class="btn btn-primary">Create a new item</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-8">
+    <div class="list-group mb-5">
+
+      @if (Model.Count() > 0) {
+
+        foreach (var i in Model) {
+
+          <a class="list-group-item list-group-item-action py-4" href="/Item/ModifiableDetails?itemId=@i.ItemId">
+            <div class="d-flex justify-content-between">
+              <small class="text-uppercase text-muted fw-bold">@i.Brand</small>
+              <small class="text-uppercase text-muted">#@i.ItemId</small>
+            </div>
+            <div class="text-capitalize fs-6">@i.Name - @i.Variant </div>
+          </a>
+
+        }
+
+      }
+      else {
+        <div class="fs-1 text-secondary">There are no items in the database</div>
+      }
+
+
+    </div>
+  </div>
+</div>
+

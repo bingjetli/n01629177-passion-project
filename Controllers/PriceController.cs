@@ -2,6 +2,7 @@
 using n01629177_passion_project.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -14,12 +15,33 @@ namespace n01629177_passion_project.Controllers {
   public class PriceController : Controller {
     // GET: Price
     public ActionResult Index() {
-      return View();
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/PriceData").Result;
+
+
+        return View(response.Content.ReadAsAsync<IEnumerable<PriceSerializable>>().Result);
+      }
     }
 
     // GET: Price/Details/5
-    public ActionResult Details(int id) {
-      return View();
+    public ActionResult ModifiableDetails(int priceId) {
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/PriceData?id={priceId}&includeShop=true&includeItem=true&includeUsers=true").Result;
+
+
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+          return Content(response.Content.ToString());
+        }
+
+
+        return View(response.Content.ReadAsAsync<PriceSerializable>().Result);
+      }
     }
 
 

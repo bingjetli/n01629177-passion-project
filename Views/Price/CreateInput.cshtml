@@ -3,17 +3,17 @@
   ViewBag.Title = "Add / Update Price | Jusqu'a";
 }
 
-<h2>Add / Update Price</h2>
+<h1 class="mt-5">Add a new price record</h1>
 
 
 <form id="priceRecordForm" method="POST" action="/Price/CreateProcess"></form>
 <form id="shopSearchForm" action="JavaScript:search()"></form>
 
 
-<div class="row">
+<div class="row mt-5">
   <div class="col-sm-8">
 
-    <div class="form-floating mt-2">
+    <div class="form-floating">
       <input id="price"
              name="price"
              class="form-control"
@@ -69,7 +69,7 @@
     <!--TabBar and Buttons-->
     <ul class="nav nav-tabs mt-5" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active"
+        <button class="nav-link"
                 id="home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#home"
@@ -81,7 +81,7 @@
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link"
+        <button class="nav-link active"
                 id="search-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#search"
@@ -98,7 +98,7 @@
 
     <!--Tab Content-->
     <div class="tab-content mt-4" id="myTabContent">
-      <div class="tab-pane fade show active" 
+      <div class="tab-pane fade" 
            id="home" 
            role="tabpanel" 
            aria-labelledby="home-tab">
@@ -112,7 +112,7 @@
       </div>
 
 
-      <div class="tab-pane fade" 
+      <div class="tab-pane fade show active" 
            id="search" 
            role="tabpanel" 
            aria-labelledby="search-tab">

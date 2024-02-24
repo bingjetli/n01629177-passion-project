@@ -67,4 +67,63 @@ namespace n01629177_passion_project.Models {
       return new StringContent(this.ToString(), Encoding.UTF8, "application/json");
     }
   }
+
+
+  public class ShopAddress {
+    public string StreetNumber { get; set; }
+    public string StreetName { get; set; }
+    public string City { get; set; }
+
+    public override string ToString() {
+      string address = "";
+
+      if (
+        StreetNumber != null &&
+        StreetName != null &&
+        City != null
+      ) {
+        address += StreetNumber + " " + StreetNumber + ", " + City;
+      }
+
+
+      return address;
+    }
+  }
+
+
+  public class ShopLocationBounds {
+    /** Latitude and Longitude Coordinates
+     *
+     * latitude (+)
+     * ^
+     * |
+     * |
+     * |
+     * |
+     * +---------> longitude (+)
+     *
+     * latitude scales from +90° (north) to -90° (south) : where 0° represents
+     *                                                     the equator.
+     *
+     * longitude scales from +180° (east) to -179.99...° (west) : where 0° and
+     *                                                            180° represent
+     *                                                            opposite ends
+     *                                                            of the prime
+     *                                                            meridian.
+     *
+     */
+
+    public class Coordinate {
+      public float Latitude { get; set; }
+      public float Longitude { get; set; }
+    }
+
+    public Coordinate NorthEast { get; set; }
+    public Coordinate SouthWest { get; set; }
+
+
+    public string ToOverPassBoundString() {
+      return $"{SouthWest.Latitude}, {SouthWest.Longitude}, {NorthEast.Latitude}, {NorthEast.Longitude}";
+    }
+  }
 }

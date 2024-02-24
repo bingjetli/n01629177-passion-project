@@ -46,14 +46,14 @@ namespace n01629177_passion_project.Models {
         int attestations = -1;
         var item_prices = new List<PriceSerializable>();
         foreach (var p in Prices) {
-          item_prices.Add(p.ToSerializable());
+          item_prices.Add(p.ToSerializable(true, false, false, true));
 
 
           //Try to get the top price for this item.
           if (p.Users.Count > attestations) {
 
             attestations = p.Users.Count;
-            most_attested_price = p.ToSerializable();
+            most_attested_price = p.ToSerializable(true, false, false, true);
           }
         }
 

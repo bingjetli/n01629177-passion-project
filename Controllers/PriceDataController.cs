@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,9 +23,25 @@ namespace n01629177_passion_project.Controllers {
     /// <returns>
     /// Always returns HTTP 200 : OK, with an ICollection of `Price` objects.
     /// </returns>
-    [ResponseType(typeof(ICollection<Price>))]
+    [ResponseType(typeof(ICollection<PriceSerializable>))]
     public IHttpActionResult GetAllPrices() {
-      return Ok(db.Prices.AsEnumerable().Select(p => p.ToSerializable()));
+
+      //This took frustratingly long to solve. Apparently Users are lazily
+      //loaded, and trying to access it throws the most cryptic exception ever.
+      //
+      //"Cannot deserialize the current JSON object (e.g. {"name":"value"}) into
+      //type 'System.Collections.Generic.IEnumerable`1[n01629177_passion_project.Models.PriceSerializable]'
+      //because the type requires a JSON array (e.g. [1,2,3]) to deserialize correctly."
+      //
+      //Nothing about that indicates that I should've checked the code inside my
+      //ToSerializable() function, find the line that calculates the attestations
+      //from the amount of users in the price list. And then consider that the
+      //I might not be accessing data that's available as yet because Users is
+      //lazily loaded. So I would need to use the `Include()` method to eagerly
+      //load the List before accessing it. Although, maybe in hindsight, I should've
+      //considered it earlier. But in the moment, that exception was incredibly
+      //misleading. 🤦‍🤦‍
+      return Ok(db.Prices.Include(p => p.Users).AsEnumerable().Select(p => p.ToSerializable()));
     }
 
 
@@ -40,13 +57,34 @@ namespace n01629177_passion_project.Controllers {
     /// `Price` object. HTTP 404 Not Found otherwise.
     /// </returns>
     [ResponseType(typeof(PriceSerializable))]
-    public IHttpActionResult GetPrice([FromUri] int id) {
-      Price price = db.Prices.Find(id);
+    public IHttpActionResult GetPrice(
+        [FromUri] int id,
+        [FromUri] bool includeItem = false,
+        [FromUri] bool includeShop = false,
+        [FromUri] bool includeUsers = false
+      ) {
+
+      //Price price = null;
+      IQueryable<Price> chainable_scope = db.Prices.AsQueryable();
+
+      if (includeItem == true) {
+        chainable_scope = chainable_scope.Include(p => p.Item);
+      }
+
+      if (includeShop == true) {
+        chainable_scope = chainable_scope.Include(p => p.Shop);
+      }
+
+      if (includeUsers == true) {
+        chainable_scope = chainable_scope.Include(p => p.Users);
+      }
+
+      Price price = chainable_scope.Where(p => p.PriceId == id).SingleOrDefault();
       if (price == null) {
         return NotFound();
       }
 
-      return Ok(price.ToSerializable());
+      return Ok(price.ToSerializable((includeItem || includeShop || includeUsers), includeItem, includeShop, includeUsers));
     }
 
 

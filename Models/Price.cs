@@ -28,17 +28,6 @@ namespace n01629177_passion_project.Models {
     public float Value { get; set; }
 
 
-    //Deprecated.
-    //Store the unit price instead of the value. Then allow the user to choose
-    //weather or not to see the price by weight or price by unit. If the price
-    //is by weight, allow the user to set the weight and unit.
-    //public float UnitPrice { get; set; }
-
-    //Deprecated.
-    //Determines whether this Price record is for "weight" or and individual "item".
-    //public string Type { get; set; }
-
-
     //A BasePriceRecord must have 1 item; But an item can have many BasePriceRecords.
     public int ItemId { get; set; }
     public virtual Item Item { get; set; }
@@ -56,17 +45,36 @@ namespace n01629177_passion_project.Models {
 
 
 
-    public PriceSerializable ToSerializable() {
+    public PriceSerializable ToSerializable(
+        bool is_deep = false,
+        bool include_item = false,
+        bool include_shop = false,
+        bool include_users = false
+      ) {
+
+      if (is_deep == true) {
+        return new PriceSerializable {
+          PriceId = this.PriceId,
+          CreationDate = this.CreationDate,
+          LastAttestationDate = this.LastAttestationDate,
+          Value = this.Value,
+          ItemId = this.ItemId,
+          ShopId = this.ShopId,
+
+          IsDeep = is_deep,
+          Attestations = include_users ? this.Users.Count : -1,
+          Item = include_item ? this.Item.ToSerializable() : null,
+          Shop = include_shop ? this.Shop.ToSerializable() : null,
+        };
+      }
+
       return new PriceSerializable {
         PriceId = this.PriceId,
         CreationDate = this.CreationDate,
         LastAttestationDate = this.LastAttestationDate,
         Value = this.Value,
-        //UnitPrice = this.UnitPrice,
-        //Type = this.Type,
         ItemId = this.ItemId,
         ShopId = this.ShopId,
-        Attestations = this.Users.Count,
       };
     }
 
@@ -78,8 +86,6 @@ namespace n01629177_passion_project.Models {
     public DateTime CreationDate { get; set; } = DateTime.Now;
     public DateTime LastAttestationDate { get; set; } = DateTime.MinValue;
     public float? Value { get; set; }
-    //public float? UnitPrice { get; set; }
-    //public string Type { get; set; }
     public int? ItemId { get; set; }
     public int? ShopId { get; set; }
 
@@ -95,9 +101,13 @@ namespace n01629177_passion_project.Models {
     public bool Reattest { get; set; } = false;
 
 
+    public bool IsDeep { get; set; } = false;
+    public ItemSerializable Item { get; set; } = null;
+    public ShopSerializable Shop { get; set; } = null;
+
     //TO-SELF: Why not just return a list of UserIDs?
     //Probably not a good idea to make the user-ids public to the end users. Call it intuition.
-    public int Attestations { get; set; }
+    public int Attestations { get; set; } = -1;
 
 
 

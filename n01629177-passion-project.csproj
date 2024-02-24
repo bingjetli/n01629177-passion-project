@@ -291,7 +291,6 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\BasePriceRecord.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -377,10 +376,13 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Item\Search.cshtml" />
     <Content Include="Views\Item\Details.cshtml" />
-    <Content Include="Views\PriceRecord\CreateInput.cshtml" />
     <Content Include="Views\Price\CreateInput.cshtml" />
     <Content Include="Views\Home\ShoppingList.cshtml" />
     <Content Include="Views\Item\CreateInput.cshtml" />
+    <Content Include="Views\Item\Index.cshtml" />
+    <Content Include="Views\Item\ModifiableDetails.cshtml" />
+    <Content Include="Views\Price\Index.cshtml" />
+    <Content Include="Views\Price\ModifiableDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

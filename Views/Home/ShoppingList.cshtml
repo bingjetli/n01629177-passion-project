@@ -3,7 +3,7 @@
   ViewBag.Title = "Shopping List";
 }
 
-<h2>Shopping List</h2>
+<h1>My Shopping List</h1>
 
 <form id="item-search-form" action="/Item/Search" method="get"></form>
 
@@ -14,7 +14,7 @@
 
       <div class="form-floating w-auto">
         <input type="search" class="form-control" id="searchbox-input" placeholder="search term" form="item-search-form">
-        <label class="" for="searchbox-input">Add items to the Shopping List</label>
+        <label class="" for="searchbox-input">Find items to add</label>
       </div>
 
       <button class="btn btn-primary flex-grow-1" form="item-search-form" type="submit">Search</button>
@@ -24,8 +24,10 @@
 </div>
 
 <div id="main-content" class="row mt-5">
-  <div id="shopping-list-box" class="list-group">
+  <div class="col-sm-8">
+    <div id="shopping-list-box" class="list-group">
 
+    </div>
   </div>
 </div>
 

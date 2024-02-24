@@ -1,0 +1,92 @@
+﻿@model n01629177_passion_project.Models.ItemSerializable
+
+@{
+  ViewBag.Title = Model.Brand + " " + @Model.Name + " " + @Model.Variant;
+}
+
+<a href="/Item" class="">Back to Items</a>
+
+<div class="text-muted text-uppercase mt-5 fw-bold">@Model.Brand</div>
+<h1 class="text-capitalize">
+  @Model.Name - @Model.Variant
+</h1>
+<small class="text-muted">
+  @Model.DefaultQuantity@(Model.PriceType == "weight" ? " g" : "x")
+</small>
+
+<div id="item-metadata" class="visually-hidden">
+  <span class="item-brand">@Model.Brand</span>
+  <span class="item-name">@Model.Name</span>
+  <span class="item-variant">@Model.Variant</span>
+  <span class="item-id">@Model.ItemId</span>
+</div>
+
+<section class="row mt-4">
+  <div class="col-sm-8">
+
+    <h3 class="visually-hidden">Price Data</h3>
+    @if (Model.IsDeep == true) {
+      if (Model.MostAttestedPrice != null) {
+        <h2 class="display-3 text-success fw-bold">$@Model.MostAttestedPrice.Value</h2>
+      }
+      else {
+        <h2 class="display-3 text-secondary fw-bold">No Price Data Yet</h2>
+      }
+
+      if (Model.Prices.Count() > 0) {
+        <div id="other-prices-accordion-box" class="mt-5 accordion @(Model.Prices.Count() <= 1 ? "visually-hidden" : "")">
+          <div class="accordion-item">
+            <h4 class="accordion-header">
+              <button class="accordion-button collapsed bg-light text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#other-prices-content-box" aria-expanded="false" aria-controls="other-prices-content-box">
+                Other associated prices
+              </button>
+            </h4>
+            <div id="other-prices-content-box" class="accordion-collapse collapse" data-bs-parent="#other-prices-accordion-box">
+              <div class="accordion-body">
+                <div id="listgroup-prices" class="list-group list-group-flush">
+                  @{var ordered_prices =  Model.Prices.OrderByDescending(p => p.LastAttestationDate);}
+                  @foreach (var p in ordered_prices) {
+
+                    <button id="price-@p.PriceId" 
+                            class="list-group-item text-success @(p.PriceId == Model.MostAttestedPrice.PriceId ? "active text-white" : "")" data-bs-toggle="list">
+
+                      <div class="d-flex justify-content-between">
+                        <span class="fw-bold">
+                          $@p.Value
+                        </span>
+                        <span class="">
+                          @p.Attestations attestations
+                        </span>
+                      </div>
+
+                      <div class="visually-hidden">
+                        <span class="price-value">@p.Value</span>
+                        <span class="price-id">@p.PriceId</span>
+                      </div>
+
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      }
+    }
+    <div class="mt-5">
+      <a class="btn btn-primary" href="/Price/CreateInput?itemId=@Model.ItemId">Make a price correction</a>
+    </div>
+
+  </div>
+</section>
+
+
+<section class="row mt-5 visually-hidden">
+  <div class="col-sm-8">
+
+    <h3>Promo Data</h3>
+    <a class="btn btn-link" href="#">Create a new Promo Entry</a>
+
+  </div>
+</section>

@@ -1,5 +1,8 @@
 ﻿using n01629177_passion_project.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -8,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.WebPages;
@@ -26,6 +30,228 @@ namespace n01629177_passion_project.Controllers {
     [ResponseType(typeof(ICollection<ShopSerializable>))]
     public IHttpActionResult GetAllShops() {
       return Ok(db.Shops.AsEnumerable().Select(s => s.ToSerializable()));
+    }
+
+
+    [HttpPost]
+    [ResponseType(typeof(IEnumerable<ShopSerializable>))]
+    public IHttpActionResult GetAllShopsInBoundingBox(
+      [System.Web.Http.FromUri] bool useOverpass,
+      [System.Web.Http.FromBody] ShopLocationBounds bbox
+    ) {
+
+
+      //OverPass API Query Variables.
+      string node_definition = "node[\"shop\"~\"supermarket\", i]";
+      string query_header = "[out:json];\n" +
+                            "(\n";
+      string query_footer = ");\n" +
+                            "out;\n";
+      string overpass_endpoint = "https://overpass-api.de/api/interpreter";
+      string overpass_query = null;
+
+      //1. First, try to get a list of the cached shops already in the database.
+      //   and check to see if there are any cached shops.
+      IEnumerable<Shop> cached_shops = db.Shops.Where(s => (
+          s.Latitude >= bbox.SouthWest.Latitude &&
+          s.Latitude <= bbox.NorthEast.Latitude &&
+          s.Longitude <= bbox.NorthEast.Longitude &&
+          s.Longitude >= bbox.SouthWest.Longitude
+      ));
+      if (cached_shops.Count() > 0) {
+
+        //2. There are cached shops to in the database, so see if the cached shops
+        //   contain any missing chunks.
+        List<float> cached_latitudes = new List<float>();
+        List<float> cached_longitudes = new List<float>();
+        foreach (Shop s in cached_shops) {
+
+          //Chunks are now rounded up to the nearest .1 since rounding up to the 
+          //nearest whole number in geographical coordinates is too large of an area.
+          int lat_chunk = (int)s.Latitude * 10;
+          int lon_chunk = (int)s.Longitude * 10;
+
+          if (cached_latitudes.Contains(lat_chunk / 10) == false) {
+
+            //Add this to the list of cached latitudes if it isn't already in there.
+            cached_latitudes.Add(lat_chunk / 10);
+          }
+
+
+          if (cached_longitudes.Contains(lon_chunk / 10) == false) {
+
+            //Add this to the list of cached longitudes if it isn't already in there.
+            cached_longitudes.Add(lon_chunk / 10);
+          }
+        }
+
+        //SELF: There's probably a better way to do this.
+
+        //Now we'll have a list of all the latitudes and longitudes that was in the 
+        //cached list of shops.
+        List<ShopLocationBounds> missing_chunks = new List<ShopLocationBounds>();
+        for (
+            float lat = ((int)bbox.SouthWest.Latitude * 10) / 10;
+            lat <= ((int)bbox.NorthEast.Latitude * 10) / 10;
+            lat++
+          ) {
+          for (
+            float lon = ((int)bbox.SouthWest.Longitude * 10) / 10;
+            lon <= ((int)bbox.NorthEast.Longitude * 10) / 10;
+            lon++
+            ) {
+
+            //Check if this chunk is in the cached latitudes and longitudes.
+            if (cached_latitudes.Contains(lat) == false || cached_longitudes.Contains(lon) == false) {
+
+              //This means that this is a missing chunk, so we should create the
+              //bounding box for it.
+              missing_chunks.Add(new ShopLocationBounds {
+                NorthEast = new ShopLocationBounds.Coordinate {
+                  Latitude = (float)(lat + 0.1),
+                  Longitude = (float)(lon + 0.1),
+                },
+                SouthWest = new ShopLocationBounds.Coordinate {
+                  Latitude = lat,
+                  Longitude = lon,
+                }
+              });
+            }
+          }
+        }
+
+
+        //First, check if there are any missing chunks, if there are, we run a graphQL
+        //query to update the data. Otherwise return the list of cached chunks to the
+        //user.
+        if (missing_chunks.Count() > 0) {
+
+          //3. There are missing chunks, so loop through each of the missing
+          //   chunks and build a specialized OverPass query string based on
+          //   the missing chunks.
+          StringBuilder query = new StringBuilder(query_header);
+          foreach (var chunk in missing_chunks) {
+            query.Append($"{node_definition}({chunk.ToOverPassBoundString()});\n");
+          }
+          query.Append(query_footer);
+          overpass_query = query.ToString();
+
+        }
+        else {
+
+          //4. There are no missing chunks, so return the cached data.
+          return Ok(cached_shops.AsEnumerable().Select(cs => cs.ToSerializable()));
+        }
+      }
+      else {
+
+        //5. There aren't any cached shops, so build an OverPass API query with
+        //   the entire bounding box for the request.
+        StringBuilder query = new StringBuilder(query_header);
+        query.Append($"{node_definition}({bbox.ToOverPassBoundString()});\n");
+        query.Append(query_footer);
+        overpass_query = query.ToString();
+      }
+
+
+      //At this point in time, `overpass_query` should not be null. If there were
+      //no missing chunks, then the function should have returned with HTTP 200
+      //and the cached data by now.
+
+      //6. Try to send a request to the overpass API with the specified query.
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        HttpResponseMessage response = http_client.PostAsync(
+          overpass_endpoint,
+          new StringContent(overpass_query, Encoding.UTF8, "text/plain")
+        ).Result;
+
+
+        // 7. Was the query successful?
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+
+          //8. The query was not successful, were there any cached shops?
+          if (cached_shops.Count() > 0) {
+
+            //10. There were cached shops, so return HTTP 200 with the cached
+            //    shop data.
+            return Ok(cached_shops.AsEnumerable().Select(cs => cs.ToSerializable()));
+          }
+          else {
+
+            //9. There weren't any cached shops, so return HTTP 500 : failed to 
+            //   shop data.
+            Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+            return InternalServerError(new Exception("Error occured retreiving data from the OverPass API."));
+          }
+        }
+
+
+        //11. The query was successful, so loop through each node and create a
+        //    new shop inside the database for each node.
+        string response_json_string = response.Content.ReadAsStringAsync().Result;
+        JObject response_json = JObject.Parse(response_json_string);
+
+        ICollection<ShopSerializable> added_shops = new List<ShopSerializable>();
+
+        int element_length = response_json["elements"].Count();
+        for (int i = 0; i < element_length; i++) {
+
+          if (
+            (string)response_json["elements"][i]["tags"]["name"] == null ||
+            ((string)response_json["elements"][i]["tags"]["name"]).Count() < 3
+          ) {
+            continue;
+          }
+
+
+          ShopAddress address = new ShopAddress {
+            StreetNumber = (string)response_json["elements"][i]["tags"]["addr:housenumber"],
+            StreetName = (string)response_json["elements"][i]["tags"]["addr:name"],
+            City = (string)response_json["elements"][i]["tags"]["addr:city"],
+          };
+
+
+          Shop new_shop = db.Shops.Add(new Shop {
+            ShopId = -1,
+            OverpassId = (long)response_json["elements"][i]["id"],
+            Name = (string)response_json["elements"][i]["tags"]["name"],
+            Address = address.ToString(),
+            Latitude = (float)response_json["elements"][i]["lat"],
+            Longitude = (float)response_json["elements"][i]["lon"],
+            Prices = new List<Price>(),
+          });
+
+
+          added_shops.Add(new_shop.ToSerializable());
+
+
+          //13. For each shop, check if this has valid address data.
+
+          //14. If there isn't, add it to a queue of shops that need their addresses
+          //    updated.
+
+
+          db.SaveChanges();
+        }
+
+
+        //15. Return the list of cached shops if it exists, concatenated with
+        //    the newly added data.
+        if (cached_shops.Count() > 0) {
+          return Ok(Enumerable.Concat<ShopSerializable>(
+            cached_shops
+              .AsEnumerable()
+              .Select(cs => cs.ToSerializable()),
+            added_shops
+          ).ToList());
+        }
+        else {
+          return Ok(added_shops);
+        }
+
+      }
     }
 
 

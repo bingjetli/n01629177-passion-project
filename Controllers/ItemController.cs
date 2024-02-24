@@ -16,7 +16,34 @@ namespace n01629177_passion_project.Controllers {
   public class ItemController : Controller {
     // GET: Item
     public ActionResult Index() {
-      return View();
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/ItemData").Result;
+
+
+        return View(response.Content.ReadAsAsync<IEnumerable<ItemSerializable>>().Result);
+      }
+    }
+
+    // GET: Item/ModifiableDetails?itemId={ITEM_ID}
+    [HttpGet]
+    public ActionResult ModifiableDetails([System.Web.Http.FromUri] int itemId) {
+      using (var http_client = new HttpClient()) {
+
+        //Construct the base URi and fetch the resource.
+        string base_uri = $"{HttpContext.Request.Url.Scheme}://{HttpContext.Request.Url.Authority}";
+        HttpResponseMessage response = http_client.GetAsync($"{base_uri}/api/ItemData?id={itemId}&includePrices=true").Result;
+
+
+        if (response.StatusCode != System.Net.HttpStatusCode.OK) {
+          return Content(response.Content.ToString());
+        }
+
+
+        return View(response.Content.ReadAsAsync<ItemSerializable>().Result);
+      }
     }
 
 

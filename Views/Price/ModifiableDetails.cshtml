@@ -1,0 +1,34 @@
+﻿@model n01629177_passion_project.Models.PriceSerializable
+
+@{
+  ViewBag.Title = "Price Details";
+}
+
+<a href="/Price" class="">Back to Prices</a>
+
+<h1 class="text-muted fs-3 mt-5">Entry #@Model.PriceId</h1>
+
+<div class="row mt-4">
+  <div class="col-sm-8">
+    <h2 class="text-success display-1 fw-bold">$@Model.Value</h2>
+    <div class="text-secondary text-capitalize mt-2">Created: @Model.CreationDate</div>
+    <div class="text-secondary">Last Attestation: @Model.LastAttestationDate</div>
+    <div class="text-secondary">Attestations: @Model.Attestations</div>
+  </div>
+</div>
+
+
+<div class="row mt-4">
+  <div class="col-sm-8">
+    <h2 class="text-secondary">for @Model.Item.Brand @Model.Item.Name - @Model.Item.Variant</h2>
+    <div class="text-secondary text-capitalize">Price Type: Sold by @Model.Item.PriceType</div>
+    <div class="text-secondary">Default Quantity: @Model.Item.DefaultQuantity</div>
+  </div>
+</div>
+
+
+<div class="row mt-4">
+  <div class="col-sm-8">
+    <h2 class="text-secondary">at @Model.Shop.Name</h2>
+  </div>
+</div>
